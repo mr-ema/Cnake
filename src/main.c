@@ -2,8 +2,10 @@
 #include "ztypes.h"
 
 #define CNAKE_LEN 1024
+#define GRIDCOLOR (Color){ 40, 40, 40, 255 }
 
 
+// Struct Definition
 typedef struct Snake {
         Vector2 position;
         Vector2 size;
@@ -17,10 +19,9 @@ typedef struct Food {
         Color color;
 } Food;
 
-
  // Global Variables
 static const u32 screen_width = 1280;
-static const u32 screen_height = 620;
+static const u32 screen_height = 640;
 
 static Vector2 offset = { 0 };
 static const u16 TILE_SIZE = 10;
@@ -40,10 +41,11 @@ static void update_game(void);
 static void draw_grid(void);
 static void draw_game(void);
 
-int main(void) {
-        InitWindow(screen_width, screen_height, "Cnake");
-                init_game();
 
+int main(void) {
+        init_game();
+
+        InitWindow(screen_width, screen_height, "Cnake");
                 SetTargetFPS(60);
                 while (!WindowShouldClose()) {
                         if (IsKeyPressed(KEY_P)) { paused = !paused; }
@@ -53,7 +55,6 @@ int main(void) {
 
                         draw_game();
                 }
-
         CloseWindow();
 }
 
@@ -127,8 +128,8 @@ void update_game(void) {
         }
 
         // Hit wall
-        if (snake[0].position.x + snake[0].size.x > (screen_width - offset.x) || snake[0].position.x < offset.x ||
-            snake[0].position.y + snake[0].size.y > (screen_height - offset.y) || snake[0].position.y < offset.y) {
+        if (snake[0].position.x > (screen_width - offset.x)  || snake[0].position.x < 0 ||
+            snake[0].position.y > (screen_height - offset.y) || snake[0].position.y < 0) {
                 game_over = true;
         }
 
@@ -142,12 +143,12 @@ void update_game(void) {
 
 }
 
-void draw_grid() {
+void draw_grid(void) {
         for (u32 i = 0; i < screen_width / TILE_SIZE + 1; i++) {
                 DrawLineV(
                         (Vector2){ TILE_SIZE * i  + offset.x / 2, offset.y / 2 },
                         (Vector2){ TILE_SIZE * i  + offset.x / 2, screen_height - offset.y / 2 },
-                        DARKGRAY
+                        GRIDCOLOR
                 );
         }
 
@@ -155,7 +156,7 @@ void draw_grid() {
                 DrawLineV(
                         (Vector2){ offset.x / 2, TILE_SIZE * i + offset.y / 2 },
                         (Vector2){ screen_width - offset.x / 2, TILE_SIZE * i + offset.y / 2 },
-                        DARKGRAY
+                        GRIDCOLOR
                 );
         }
 }
@@ -164,12 +165,12 @@ void draw_game(void) {
         BeginDrawing();
                 ClearBackground(BLACK);
 
-                DrawFPS(10, 10);
+                DrawFPS(screen_width - 100, 20);
                 draw_grid();
 
-                if (paused) {
-                        DrawText("PAUSED", screen_width/2 - MeasureText("PAUSED", 40)/2, screen_height/2 - 40, 40, RAYWHITE);
-                }
+                DrawText(TextFormat("SCORE: %i", seg_counter - 1), 30, 20, 20, RAYWHITE);
+
+                if (paused) DrawText("PAUSED", screen_width/2 - MeasureText("PAUSED", 40)/2, screen_height/2 - 40, 40, RAYWHITE);
 
                 // Draw snake
                 for (int i = 0; i < seg_counter; i++) {
@@ -179,10 +180,12 @@ void draw_game(void) {
                 // Draw fruit
                 DrawRectangleRec(fruit.rec, fruit.color);
 
+                // Stop the game before overflow
+                if (seg_counter == CNAKE_LEN) game_over = true;
+
                 if (game_over) {
                         DrawText("GAME OVER", screen_width/2 - MeasureText("GAME OVER", 40)/2, screen_height/2 - 40, 40, RAYWHITE);
                         DrawText("PRESS [R] TO RESTARD", screen_width/2 - MeasureText("PRESS [R] TO RESTARD", 20)/2, screen_height/2 + 10, 20, RAYWHITE);
                 }
-
         EndDrawing();
 }
