@@ -23,6 +23,8 @@ typedef struct Food {
 static const u32 screen_width = 1280;
 static const u32 screen_height = 640;
 
+static const u32 padding = 200;
+
 static Vector2 offset = { 0 };
 static const u16 TILE_SIZE = 10;
 
@@ -65,8 +67,8 @@ void init_game(void) {
         seg_counter = 1;
         can_move = false;
 
-        offset.x = screen_width % TILE_SIZE;
-        offset.y = screen_height % TILE_SIZE;
+        offset.x = (screen_width % TILE_SIZE) + padding;
+        offset.y = (screen_height % TILE_SIZE) + padding;
 
         for (u32 i = 0; i < CNAKE_LEN; i++) {
                 snake[i].position = (Vector2){ offset.x / 2, offset.y / 2 };
@@ -117,8 +119,8 @@ void update_game(void) {
         if (!fruit.active) {
                 fruit.active = true;
 
-                fruit.rec.x = GetRandomValue(0, (screen_width  / TILE_SIZE) - 1) * TILE_SIZE + offset.x / 2;
-                fruit.rec.y = GetRandomValue(0, (screen_height / TILE_SIZE) - 1) * TILE_SIZE + offset.y / 2;
+                fruit.rec.x = GetRandomValue(0, ((screen_width - padding) / TILE_SIZE) - 1) * TILE_SIZE + offset.x / 2;
+                fruit.rec.y = GetRandomValue(0, ((screen_height - padding) / TILE_SIZE) - 1) * TILE_SIZE + offset.y / 2;
         }
         
         // Self collision
@@ -128,8 +130,8 @@ void update_game(void) {
         }
 
         // Hit wall
-        if (snake[0].position.x > (screen_width - offset.x)  || snake[0].position.x < 0 ||
-            snake[0].position.y > (screen_height - offset.y) || snake[0].position.y < 0) {
+        if (snake[0].position.x + snake[0].size.x > (screen_width - offset.x / 2)  || snake[0].position.x < offset.x / 2 ||
+            snake[0].position.y + snake[0].size.y > (screen_height - offset.y / 2) || snake[0].position.y < offset.y / 2) {
                 game_over = true;
         }
 
@@ -144,7 +146,7 @@ void update_game(void) {
 }
 
 void draw_grid(void) {
-        for (u32 i = 0; i < screen_width / TILE_SIZE + 1; i++) {
+        for (u32 i = 0; i < (screen_width - padding)/ TILE_SIZE + 1; i++) {
                 DrawLineV(
                         (Vector2){ TILE_SIZE * i  + offset.x / 2, offset.y / 2 },
                         (Vector2){ TILE_SIZE * i  + offset.x / 2, screen_height - offset.y / 2 },
@@ -152,7 +154,7 @@ void draw_grid(void) {
                 );
         }
 
-        for (u32 i = 0; i < screen_height / TILE_SIZE + 1; i++) {
+        for (u32 i = 0; i < (screen_height - padding) / TILE_SIZE + 1; i++) {
                 DrawLineV(
                         (Vector2){ offset.x / 2, TILE_SIZE * i + offset.y / 2 },
                         (Vector2){ screen_width - offset.x / 2, TILE_SIZE * i + offset.y / 2 },
