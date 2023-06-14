@@ -22,8 +22,10 @@ typedef struct Food {
  // Global Variables
 static const u32 screen_width = 1280;
 static const u32 screen_height = 640;
-
 static const u32 padding = 200;
+
+static u32 grid_width;
+static u32 grid_height;
 
 static Vector2 offset = { 0 };
 static const u16 TILE_SIZE = 10;
@@ -69,6 +71,9 @@ void init_game(void) {
 
         offset.x = (screen_width % TILE_SIZE) + padding;
         offset.y = (screen_height % TILE_SIZE) + padding;
+
+        grid_width = (screen_width - offset.x) / TILE_SIZE;
+        grid_height = (screen_height - offset.y) / TILE_SIZE;
 
         for (u32 i = 0; i < CNAKE_LEN; i++) {
                 snake[i].position = (Vector2){ offset.x / 2, offset.y / 2 };
@@ -146,18 +151,21 @@ void update_game(void) {
 }
 
 void draw_grid(void) {
-        for (u32 i = 0; i < (screen_width - padding)/ TILE_SIZE + 1; i++) {
+        u32 start_x = (screen_width - (grid_width * TILE_SIZE + offset.x)) / 2 + offset.x / 2;
+        u32 start_y = (screen_height - (grid_height * TILE_SIZE + offset.y)) / 2 + offset.y / 2;
+
+        for (u32 i = 0; i <= grid_width; i++) {
                 DrawLineV(
-                        (Vector2){ TILE_SIZE * i  + offset.x / 2, offset.y / 2 },
-                        (Vector2){ TILE_SIZE * i  + offset.x / 2, screen_height - offset.y / 2 },
+                        (Vector2){ start_x + TILE_SIZE * i, start_y },
+                        (Vector2){ start_x + TILE_SIZE * i, start_y + grid_height * TILE_SIZE },
                         GRIDCOLOR
                 );
         }
 
-        for (u32 i = 0; i < (screen_height - padding) / TILE_SIZE + 1; i++) {
+        for (u32 i = 0; i <= grid_height; i++) {
                 DrawLineV(
-                        (Vector2){ offset.x / 2, TILE_SIZE * i + offset.y / 2 },
-                        (Vector2){ screen_width - offset.x / 2, TILE_SIZE * i + offset.y / 2 },
+                        (Vector2){ start_x, start_y + TILE_SIZE * i },
+                        (Vector2){ start_x + grid_width * TILE_SIZE, start_y + TILE_SIZE * i },
                         GRIDCOLOR
                 );
         }
