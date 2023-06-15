@@ -1,6 +1,10 @@
 #include "raylib.h"
 #include "ztypes.h"
 
+// TODO: Refactor this mess once the audio is working
+// TODO: Make the snake speed more customizable
+// TODO: Split the code into modules once the game is playable
+
 #define CNAKE_LEN 1024
 #define GRIDCOLOR (Color){ 40, 40, 40, 255 }
 
@@ -55,9 +59,12 @@ static u32 seg_counter = 0;
 // Textures
 Texture2D title_screen_bg;
 
+// Audio
+Sound crunch;
+
 // Function Declaration
-static void load_textures(void);
-static void unload_textures(void);
+static void load_assets(void);
+static void unload_assets(void);
 static void draw_title_screen(void);
 static void init_game(void);
 static void update_game(void);
@@ -69,8 +76,9 @@ int main(void) {
         init_game();
 
         InitWindow(screen_width, screen_height, "Cnake");
+        InitAudioDevice();
                 
-                load_textures();
+                load_assets();
                 SetTargetFPS(60);
 
                 while (!WindowShouldClose()) {
@@ -85,7 +93,7 @@ int main(void) {
                         draw_game();
                 }
 
-                unload_textures();
+                unload_assets();
 
         CloseWindow();
 }
@@ -172,6 +180,7 @@ void update_game(void) {
         // Collision with fruit
         if (CheckCollisionPointRec(snake[0].position, fruit.rec)) {
                 snake[seg_counter].position = snake_position[seg_counter - 1];
+                PlaySound(crunch);
 
                 seg_counter += 1;
                 fruit.active = false;
@@ -179,12 +188,15 @@ void update_game(void) {
 
 }
 
-void load_textures(void) {
+void load_assets(void) {
         title_screen_bg = LoadTexture("assets/snake.png");
+        crunch = LoadSound("assets/crunch.wav");
 }
 
-void unload_textures(void) {
+void unload_assets(void) {
         UnloadTexture(title_screen_bg);
+        UnloadSound(crunch);
+        CloseAudioDevice();
 }
 
 void draw_title_screen() {
