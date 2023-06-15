@@ -6,6 +6,14 @@
 
 
 // Struct Definition
+typedef enum GameState {
+        STARTSCREEN,
+        GAMEOVER,
+        PAUSED,
+        PLAYING,
+        RESTART
+} GameState;
+
 typedef struct Grid {
         u32 width;
         u32 height;
@@ -36,16 +44,21 @@ static Grid grid = { 0 };
 static Vector2 offset = { 0 };
 static const u16 TILE_SIZE = 10;
 
-static bool paused = false;
-static bool game_over = false;
 static bool can_move = false;
+static GameState game_state;
 
 static Food fruit = { 0 };
 static Snake snake[CNAKE_LEN] = { 0 };
 static Vector2 snake_position[CNAKE_LEN] = { 0 };
 static u32 seg_counter = 0;
 
- // Function Declaration
+// Textures
+Texture2D title_screen_bg;
+
+// Function Declaration
+static void load_textures(void);
+static void unload_textures(void);
+static void draw_title_screen(void);
 static void init_game(void);
 static void update_game(void);
 static void draw_grid(void);
@@ -56,22 +69,29 @@ int main(void) {
         init_game();
 
         InitWindow(screen_width, screen_height, "Cnake");
+                
+                load_textures();
                 SetTargetFPS(60);
-                while (!WindowShouldClose()) {
-                        if (IsKeyPressed(KEY_P)) { paused = !paused; }
-                        if (IsKeyPressed(KEY_R)) { init_game(); }
 
-                        if (!paused && !game_over) { update_game(); }
+                while (!WindowShouldClose()) {
+                        if (IsKeyPressed(KEY_P)) { game_state = PAUSED; }
+                        if (IsKeyPressed(KEY_R)) { 
+                                game_state = RESTART;
+                                init_game();
+                        }
+
+                        if (game_state == PLAYING) { update_game(); }
 
                         draw_game();
                 }
+
+                unload_textures();
+
         CloseWindow();
 }
 
 void init_game(void) {
-        game_over = false;
-        paused = false;
-
+        game_state = game_state == RESTART ? PLAYING : STARTSCREEN; // temporal way of restart the game
         seg_counter = 1;
         can_move = false;
 
@@ -140,13 +160,13 @@ void update_game(void) {
         // Self collision
         for (int i = 1; i < seg_counter; i++) {
                 if (snake[0].position.x == snake[i].position.x && snake[0].position.y == snake[i].position.y)
-                        game_over = true;
+                        game_state = GAMEOVER;
         }
 
         // Hit wall
         if (snake[0].position.x + snake[0].size.x > (screen_width - offset.x / 2)  || snake[0].position.x < offset.x / 2 ||
             snake[0].position.y + snake[0].size.y > (screen_height - offset.y / 2) || snake[0].position.y < offset.y / 2) {
-                game_over = true;
+                game_state = GAMEOVER;
         }
 
         // Collision with fruit
@@ -157,6 +177,19 @@ void update_game(void) {
                 fruit.active = false;
         }
 
+}
+
+void load_textures(void) {
+        title_screen_bg = LoadTexture("assets/snake.png");
+}
+
+void unload_textures(void) {
+        UnloadTexture(title_screen_bg);
+}
+
+void draw_title_screen() {
+        // DrawTexture(start_bg, 0, 0, WHITE);
+        DrawText("Press [Enter] To Start The Game!", screen_width/2 - MeasureText("Press [Enter] To Start The Game!", 40)/2, screen_height/2 - 40, 40, BLACK);
 }
 
 void draw_grid(void) {
@@ -180,29 +213,36 @@ void draw_grid(void) {
 
 void draw_game(void) {
         BeginDrawing();
-                ClearBackground(BLACK);
+                if (game_state == STARTSCREEN) {
+                        ClearBackground(RAYWHITE);
+                        if (IsKeyPressed(KEY_ENTER)) { game_state = PLAYING; }
+                        draw_title_screen();
+                } else {
+                        ClearBackground(BLACK);
+                        DrawFPS(screen_width - 100, 20);
+                        draw_grid();
 
-                DrawFPS(screen_width - 100, 20);
-                draw_grid();
+                        DrawText(TextFormat("SCORE: %i", seg_counter - 1), 30, 20, 20, RAYWHITE);
 
-                DrawText(TextFormat("SCORE: %i", seg_counter - 1), 30, 20, 20, RAYWHITE);
+                        if (game_state == PAUSED) DrawText("PAUSED", screen_width/2 - MeasureText("PAUSED", 40)/2, screen_height/2 - 40, 40, RAYWHITE);
 
-                if (paused) DrawText("PAUSED", screen_width/2 - MeasureText("PAUSED", 40)/2, screen_height/2 - 40, 40, RAYWHITE);
+                        // Draw snake
+                        for (int i = 0; i < seg_counter; i++) {
+                                DrawRectangleV(snake[i].position, snake[i].size, snake[i].color);
+                        }
 
-                // Draw snake
-                for (int i = 0; i < seg_counter; i++) {
-                        DrawRectangleV(snake[i].position, snake[i].size, snake[i].color);
-                }
+                        // Draw fruit
+                        DrawRectangleRec(fruit.rec, fruit.color);
 
-                // Draw fruit
-                DrawRectangleRec(fruit.rec, fruit.color);
+                        // Stop the game before overflow
+                        if (seg_counter == CNAKE_LEN) {
+                                game_state = GAMEOVER;
+                        }
 
-                // Stop the game before overflow
-                if (seg_counter == CNAKE_LEN) game_over = true;
-
-                if (game_over) {
-                        DrawText("GAME OVER", screen_width/2 - MeasureText("GAME OVER", 40)/2, screen_height/2 - 40, 40, RAYWHITE);
-                        DrawText("PRESS [R] TO RESTARD", screen_width/2 - MeasureText("PRESS [R] TO RESTARD", 20)/2, screen_height/2 + 10, 20, RAYWHITE);
+                        if (game_state == GAMEOVER) {
+                                DrawText("GAME OVER", screen_width/2 - MeasureText("GAME OVER", 40)/2, screen_height/2 - 40, 40, RAYWHITE);
+                                DrawText("PRESS [R] TO RESTART", screen_width/2 - MeasureText("PRESS [R] TO RESTART", 20)/2, screen_height/2 + 10, 20, RAYWHITE);
+                        }
                 }
         EndDrawing();
 }
