@@ -1,5 +1,5 @@
-#ifndef ZTYPES_H
-#define ZTYPES_H
+#ifndef CNAKE_TYPES_H
+#define CNAKE_TYPES_H
 
 #include <stdint.h>
 
