@@ -6,6 +6,13 @@
 
 
 // Struct Definition
+typedef struct Grid {
+        u32 width;
+        u32 height;
+        u16 start_x;
+        u16 start_y;
+} Grid;
+
 typedef struct Snake {
         Vector2 position;
         Vector2 size;
@@ -24,11 +31,7 @@ static const u32 screen_width = 1280;
 static const u32 screen_height = 640;
 static const u32 padding = 200;
 
-static u32 grid_width;
-static u32 grid_height;
-
-static u16 start_x;
-static u16 start_y;
+static Grid grid = { 0 };
 
 static Vector2 offset = { 0 };
 static const u16 TILE_SIZE = 10;
@@ -36,7 +39,6 @@ static const u16 TILE_SIZE = 10;
 static bool paused = false;
 static bool game_over = false;
 static bool can_move = false;
-
 
 static Food fruit = { 0 };
 static Snake snake[CNAKE_LEN] = { 0 };
@@ -76,14 +78,14 @@ void init_game(void) {
         offset.x = (screen_width % TILE_SIZE) + padding;
         offset.y = (screen_height % TILE_SIZE) + padding;
 
-        grid_width = (screen_width - offset.x) / TILE_SIZE;
-        grid_height = (screen_height - offset.y) / TILE_SIZE;
+        grid.width = (screen_width - offset.x) / TILE_SIZE;
+        grid.height = (screen_height - offset.y) / TILE_SIZE;
 
-        start_x = (screen_width - (grid_width * TILE_SIZE + offset.x)) / 2 + offset.x / 2;
-        start_y = (screen_height - (grid_height * TILE_SIZE + offset.y)) / 2 + offset.y / 2;
+        grid.start_x = (screen_width - (grid.width * TILE_SIZE + offset.x)) / 2 + offset.x / 2;
+        grid.start_y = (screen_height - (grid.height * TILE_SIZE + offset.y)) / 2 + offset.y / 2;
 
         for (u32 i = 0; i < CNAKE_LEN; i++) {
-                snake[i].position = (Vector2){ start_x, start_y };
+                snake[i].position = (Vector2){ grid.start_x, grid.start_y };
                 snake[i].speed = (Vector2){ TILE_SIZE, 0 };
                 snake[i].size = (Vector2){ TILE_SIZE, TILE_SIZE };
                 snake[i].color = DARKGREEN;
@@ -131,8 +133,8 @@ void update_game(void) {
         if (!fruit.active) {
                 fruit.active = true;
 
-                fruit.rec.x = GetRandomValue(0, grid_width - 1)  * TILE_SIZE + start_x;
-                fruit.rec.y = GetRandomValue(0, grid_height - 1) * TILE_SIZE + start_y;
+                fruit.rec.x = GetRandomValue(0, grid.width - 1)  * TILE_SIZE + grid.start_x;
+                fruit.rec.y = GetRandomValue(0, grid.height - 1) * TILE_SIZE + grid.start_y;
         }
         
         // Self collision
@@ -158,22 +160,23 @@ void update_game(void) {
 }
 
 void draw_grid(void) {
-        for (u32 i = 0; i <= grid_width; i++) {
+        for (u32 i = 0; i <= grid.width; i++) {
                 DrawLineV(
-                        (Vector2){ start_x + TILE_SIZE * i, start_y },
-                        (Vector2){ start_x + TILE_SIZE * i, start_y + grid_height * TILE_SIZE },
+                        (Vector2){ grid.start_x + TILE_SIZE * i, grid.start_y },
+                        (Vector2){ grid.start_x + TILE_SIZE * i, grid.start_y + grid.height * TILE_SIZE },
                         GRIDCOLOR
                 );
         }
 
-        for (u32 i = 0; i <= grid_height; i++) {
+        for (u32 i = 0; i <= grid.height; i++) {
                 DrawLineV(
-                        (Vector2){ start_x, start_y + TILE_SIZE * i },
-                        (Vector2){ start_x + grid_width * TILE_SIZE, start_y + TILE_SIZE * i },
+                        (Vector2){ grid.start_x, grid.start_y + TILE_SIZE * i },
+                        (Vector2){ grid.start_x + grid.width * TILE_SIZE, grid.start_y + TILE_SIZE * i },
                         GRIDCOLOR
                 );
         }
 }
+
 
 void draw_game(void) {
         BeginDrawing();
