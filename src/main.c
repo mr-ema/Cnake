@@ -1,5 +1,5 @@
 #include "raylib.h"
-#include "ztypes.h"
+#include "types.h"
 
 // TODO: Refactor this mess once the audio is working
 // TODO: Make the snake speed more customizable
