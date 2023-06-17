@@ -82,7 +82,7 @@ int main(void) {
                 SetTargetFPS(60);
 
                 while (!WindowShouldClose()) {
-                        if (IsKeyPressed(KEY_P)) { game_state = PAUSED; }
+                        if (IsKeyPressed(KEY_P)) { game_state = game_state == PAUSED ? PLAYING : PAUSED; }
                         if (IsKeyPressed(KEY_R)) { 
                                 game_state = RESTART;
                                 init_game();
