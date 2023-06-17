@@ -1,91 +1,81 @@
 #include "raylib.h"
-#include "ztypes.h"
+#include "math.h"
 
-// TODO: Refactor this mess once the audio is working
-// TODO: Make the snake speed more customizable
-// TODO: Split the code into modules once the game is playable
+#include "types.h"
+#include "food.h"
+#include "collision.h"
 
+// Configurations
+#define TARGET_FPS 10
 #define CNAKE_LEN 1024
-#define GRIDCOLOR (Color){ 40, 40, 40, 255 }
+#define TILE_SIZE (u8)30
+#define OFFSET_X (float)200
+#define OFFSET_Y (float)200
+
+// Colors
+#define GRIDCOLOR   (Color){ 30, 30, 30, 255 }
+#define HEAD_COLOR  (Color){ 0, 150, 0, 255 }
+#define BODY_COLOR  (Color){ 0, 100, 0, 255 }
+#define FRUIT_COLOR (Color){ 150, 0, 0, 255 }
 
 
 // Struct Definition
 typedef enum GameState {
-        STARTSCREEN,
-        GAMEOVER,
+        TITLE_SCREEN,
+        GAME_OVER,
         PAUSED,
         PLAYING,
+        WIN,
         RESTART
 } GameState;
 
-typedef struct Grid {
-        u32 width;
-        u32 height;
-        u16 start_x;
-        u16 start_y;
-} Grid;
-
-typedef struct Snake {
-        Vector2 position;
-        Vector2 size;
-        Vector2 speed;
-        Color color;
-} Snake;
-
-typedef struct Food {
-        Rectangle rec;
-        bool active;
-        Color color;
-} Food;
-
  // Global Variables
-static const u32 screen_width = 1280;
-static const u32 screen_height = 640;
-static const u32 padding = 200;
+static const u32 SCREEN_WIDTH = 1280;
+static const u32 SCREEN_HEIGHT = 640;
 
-static Grid grid = { 0 };
+static const u32 COLUMNS = (SCREEN_WIDTH - OFFSET_X) / TILE_SIZE;
+static const u32 ROWS = (SCREEN_HEIGHT - OFFSET_Y) / TILE_SIZE;
+static const u16 MAX_SCORE = (ROWS * COLUMNS) - 1;
 
-static Vector2 offset = { 0 };
-static const u16 TILE_SIZE = 10;
+static Grid grid;
+static Vector2 BOUNDERY_MIN;
+static Vector2 BOUNDERY_MAX;
 
-static bool can_move = false;
 static GameState game_state;
+static u32 score;
 
-static Food fruit = { 0 };
-static Snake snake[CNAKE_LEN] = { 0 };
-static Vector2 snake_position[CNAKE_LEN] = { 0 };
-static u32 seg_counter = 0;
-
-// Textures
-Texture2D title_screen_bg;
+static Food fruit;
+static Snake snake;
+static SnakeSegment snake_body[CNAKE_LEN] = { 0 };
 
 // Audio
 Sound crunch;
 
 // Function Declaration
-static void load_assets(void);
-static void unload_assets(void);
-static void draw_title_screen(void);
-static void init_game(void);
+static void new_game(void);
 static void update_game(void);
-static void draw_grid(void);
 static void draw_game(void);
+static void draw_win_text(void);
+static void draw_game_over(u16 font_size, Color color);
+static void draw_title_screen(u16 text_size, Color bg_color, Color text_color);
 
 
 int main(void) {
-        init_game();
+        InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Cnake");
+                InitAudioDevice();
+                crunch = LoadSound("assets/crunch.wav");
 
-        InitWindow(screen_width, screen_height, "Cnake");
-        InitAudioDevice();
-                
-                load_assets();
-                SetTargetFPS(60);
+                SetTargetFPS(TARGET_FPS);
+                new_game();
 
                 while (!WindowShouldClose()) {
-                        if (IsKeyPressed(KEY_P)) { game_state = PAUSED; }
+                        if (IsKeyPressed(KEY_P)) {
+                                game_state = game_state == PAUSED ? PLAYING : PAUSED;
+                        }
+
                         if (IsKeyPressed(KEY_R)) { 
                                 game_state = RESTART;
-                                init_game();
+                                new_game();
                         }
 
                         if (game_state == PLAYING) { update_game(); }
@@ -93,168 +83,131 @@ int main(void) {
                         draw_game();
                 }
 
-                unload_assets();
+                UnloadSound(crunch);
+                CloseAudioDevice();
 
         CloseWindow();
 }
 
-void init_game(void) {
-        game_state = game_state == RESTART ? PLAYING : STARTSCREEN; // temporal way of restart the game
-        seg_counter = 1;
-        can_move = false;
+void new_game(void) {
+        game_state = game_state == RESTART ? PLAYING : TITLE_SCREEN;
+        score = 0;
 
-        offset.x = (screen_width % TILE_SIZE) + padding;
-        offset.y = (screen_height % TILE_SIZE) + padding;
+        // Create a grid
+        grid = (Grid) {
+                .columns = COLUMNS,
+                .rows = ROWS,
+                .tile_size = TILE_SIZE,
 
-        grid.width = (screen_width - offset.x) / TILE_SIZE;
-        grid.height = (screen_height - offset.y) / TILE_SIZE;
+                .start_x = (SCREEN_WIDTH - (COLUMNS * TILE_SIZE + OFFSET_X)) / 2 + OFFSET_X / 2,
+                .start_y = (SCREEN_HEIGHT - (ROWS * TILE_SIZE + OFFSET_Y)) / 2 + OFFSET_Y / 2
+        };
 
-        grid.start_x = (screen_width - (grid.width * TILE_SIZE + offset.x)) / 2 + offset.x / 2;
-        grid.start_y = (screen_height - (grid.height * TILE_SIZE + offset.y)) / 2 + offset.y / 2;
+        // Set wall boundaries
+        BOUNDERY_MIN = (Vector2){ grid.start_x, grid.start_y };
+        BOUNDERY_MAX = (Vector2){ (SCREEN_WIDTH - OFFSET_X / 2), (SCREEN_HEIGHT - OFFSET_Y / 2) };
+
+        snake = (Snake){
+                .body = snake_body,
+                .head = (SnakeSegment){ .color = HEAD_COLOR, .position = (Vector2){ grid.start_x, grid.start_y } },
+                .speed = (Vector2){ grid.tile_size, 0 },
+                .size = (Vector2){ grid.tile_size, grid.tile_size },
+                .len = 1,
+        };
 
         for (u32 i = 0; i < CNAKE_LEN; i++) {
-                snake[i].position = (Vector2){ grid.start_x, grid.start_y };
-                snake[i].speed = (Vector2){ TILE_SIZE, 0 };
-                snake[i].size = (Vector2){ TILE_SIZE, TILE_SIZE };
-                snake[i].color = DARKGREEN;
+                snake.body[i].position = (Vector2){ 0.0f, 0.0f };
+                snake.body[i].color = BODY_COLOR;
+        }
 
-                snake_position[i] = (Vector2){ 0.0f, 0.0f };
-        } snake[0].color = GREEN;
-
-        fruit.rec = (Rectangle){ 0.0f, 0.0f, TILE_SIZE, TILE_SIZE };
-        fruit.color = BLUE;
-        fruit.active = false;
-}
-
-void move_snake(void) {
-        if (IsKeyPressed(KEY_J) && (snake[0].speed.y == 0) && can_move) {
-                snake[0].speed = (Vector2){ 0, TILE_SIZE };
-                can_move = false;
-        }
-        if (IsKeyPressed(KEY_K) && (snake[0].speed.y == 0) && can_move) {
-                snake[0].speed = (Vector2){ 0, -TILE_SIZE };
-                can_move = false;
-        }
-        if (IsKeyPressed(KEY_H) && (snake[0].speed.x == 0) && can_move) {
-                snake[0].speed = (Vector2){ -TILE_SIZE, 0 };
-                can_move = false;
-        }
-        if (IsKeyPressed(KEY_L) && (snake[0].speed.x== 0) && can_move) {
-                snake[0].speed = (Vector2){ TILE_SIZE, 0 };
-                can_move = false;
-        }
+        fruit = (Food) {
+                .rec = (Rectangle){ -100.0f, 0.0f, grid.tile_size, grid.tile_size },
+                .color = FRUIT_COLOR,
+                .active = false,
+        };
 }
 
 void update_game(void) {
-        move_snake();
+        move_snake(&snake, grid.tile_size);
+        update_snake(&snake);
+        spawn_food(&fruit, grid); 
 
-        for (u32 i = 0; i < seg_counter; i++)
-                snake_position[i] = snake[i].position;
-
-        snake[0].position.x += snake[0].speed.x;
-        snake[0].position.y += snake[0].speed.y;
-        can_move = true;
-
-        for (u32 i = 1; i < seg_counter; i++)
-                snake[i].position = snake_position[i - 1];
-
-        if (!fruit.active) {
-                fruit.active = true;
-
-                fruit.rec.x = GetRandomValue(0, grid.width - 1)  * TILE_SIZE + grid.start_x;
-                fruit.rec.y = GetRandomValue(0, grid.height - 1) * TILE_SIZE + grid.start_y;
-        }
-        
-        // Self collision
-        for (int i = 1; i < seg_counter; i++) {
-                if (snake[0].position.x == snake[i].position.x && snake[0].position.y == snake[i].position.y)
-                        game_state = GAMEOVER;
+        if (check_snake_self_collision(&snake) || check_snake_wall_collision(&snake, BOUNDERY_MIN, BOUNDERY_MAX)) {
+                game_state = GAME_OVER;
         }
 
-        // Hit wall
-        if (snake[0].position.x + snake[0].size.x > (screen_width - offset.x / 2)  || snake[0].position.x < offset.x / 2 ||
-            snake[0].position.y + snake[0].size.y > (screen_height - offset.y / 2) || snake[0].position.y < offset.y / 2) {
-                game_state = GAMEOVER;
-        }
+        if (check_snake_food_collision(&snake, &fruit)) {
+                snake.body[snake.len].position = snake.body[snake.len - 1].position;
+                snake.len += 1;
 
-        // Collision with fruit
-        if (CheckCollisionPointRec(snake[0].position, fruit.rec)) {
-                snake[seg_counter].position = snake_position[seg_counter - 1];
-                PlaySound(crunch);
-
-                seg_counter += 1;
+                score += 1;
                 fruit.active = false;
-        }
 
-}
-
-void load_assets(void) {
-        title_screen_bg = LoadTexture("assets/snake.png");
-        crunch = LoadSound("assets/crunch.wav");
-}
-
-void unload_assets(void) {
-        UnloadTexture(title_screen_bg);
-        UnloadSound(crunch);
-        CloseAudioDevice();
-}
-
-void draw_title_screen() {
-        // DrawTexture(start_bg, 0, 0, WHITE);
-        DrawText("Press [Enter] To Start The Game!", screen_width/2 - MeasureText("Press [Enter] To Start The Game!", 40)/2, screen_height/2 - 40, 40, BLACK);
-}
-
-void draw_grid(void) {
-        for (u32 i = 0; i <= grid.width; i++) {
-                DrawLineV(
-                        (Vector2){ grid.start_x + TILE_SIZE * i, grid.start_y },
-                        (Vector2){ grid.start_x + TILE_SIZE * i, grid.start_y + grid.height * TILE_SIZE },
-                        GRIDCOLOR
-                );
-        }
-
-        for (u32 i = 0; i <= grid.height; i++) {
-                DrawLineV(
-                        (Vector2){ grid.start_x, grid.start_y + TILE_SIZE * i },
-                        (Vector2){ grid.start_x + grid.width * TILE_SIZE, grid.start_y + TILE_SIZE * i },
-                        GRIDCOLOR
-                );
+                PlaySound(crunch);
         }
 }
 
+static void draw_title_screen(u16 title_size, Color bg_color, Color text_color) {
+        ClearBackground(bg_color);
 
-void draw_game(void) {
+        DrawText("Press [Enter] To Start The Game!",
+                SCREEN_WIDTH / 2 - MeasureText("Press [Enter] To Start The Game!", title_size) / 2,
+                SCREEN_HEIGHT / 2 - title_size, title_size,
+                text_color
+        );
+}
+
+static void draw_game_over(u16 font_size, Color color) {
+        DrawText("GAME OVER",
+                SCREEN_WIDTH / 2 - MeasureText("GAME OVER", font_size) / 2,
+                SCREEN_HEIGHT / 2 - font_size, font_size,
+                color
+        );
+
+        DrawText("PRESS [R] TO RESTART",
+                SCREEN_WIDTH / 2 - MeasureText("PRESS [R] TO RESTART", font_size * 0.35) / 2,
+                SCREEN_HEIGHT / 2 + 10, font_size * 0.35,
+                color 
+        );
+}
+
+static void draw_win_text(void) {
+        DrawText("You won the game!", SCREEN_WIDTH / 2 - MeasureText("You won the game!", 40) / 2, SCREEN_HEIGHT / 2 - 50, 40, RAYWHITE);
+}
+
+static void draw_game(void) {
         BeginDrawing();
-                if (game_state == STARTSCREEN) {
-                        ClearBackground(RAYWHITE);
-                        if (IsKeyPressed(KEY_ENTER)) { game_state = PLAYING; }
-                        draw_title_screen();
-                } else {
-                        ClearBackground(BLACK);
-                        DrawFPS(screen_width - 100, 20);
-                        draw_grid();
 
-                        DrawText(TextFormat("SCORE: %i", seg_counter - 1), 30, 20, 20, RAYWHITE);
+                switch (game_state) {
+                        case TITLE_SCREEN:
+                                if (IsKeyPressed(KEY_ENTER)) { game_state = PLAYING; }
+                                draw_title_screen(40, RAYWHITE, BLACK);
+                                break;
+                        case PAUSED:
+                                DrawText("PAUSED", SCREEN_WIDTH/2 - MeasureText("PAUSED", 40)/2, SCREEN_HEIGHT/2 - 40, 40, RAYWHITE);
+                                break;
+                        case GAME_OVER:
+                                if (game_state == GAME_OVER) { draw_game_over(60, RAYWHITE); }
+                                break;
+                        case WIN:
+                                draw_win_text();
+                                break;
+                        default:
+                                ClearBackground(BLACK);
+                                DrawFPS(SCREEN_WIDTH - 100, 20);
+                                draw_grid(&grid, GRIDCOLOR, GRIDCOLOR);
 
-                        if (game_state == PAUSED) DrawText("PAUSED", screen_width/2 - MeasureText("PAUSED", 40)/2, screen_height/2 - 40, 40, RAYWHITE);
+                                DrawText(TextFormat("SCORE: %i", score), 30, 20, 20, RAYWHITE);
 
-                        // Draw snake
-                        for (int i = 0; i < seg_counter; i++) {
-                                DrawRectangleV(snake[i].position, snake[i].size, snake[i].color);
-                        }
+                                draw_snake(&snake);
+                                draw_food(&fruit);
 
-                        // Draw fruit
-                        DrawRectangleRec(fruit.rec, fruit.color);
-
-                        // Stop the game before overflow
-                        if (seg_counter == CNAKE_LEN) {
-                                game_state = GAMEOVER;
-                        }
-
-                        if (game_state == GAMEOVER) {
-                                DrawText("GAME OVER", screen_width/2 - MeasureText("GAME OVER", 40)/2, screen_height/2 - 40, 40, RAYWHITE);
-                                DrawText("PRESS [R] TO RESTART", screen_width/2 - MeasureText("PRESS [R] TO RESTART", 20)/2, screen_height/2 + 10, 20, RAYWHITE);
-                        }
+                                // Stop the game before overflow
+                                if (snake.len == CNAKE_LEN || score == MAX_SCORE) {
+                                        game_state = WIN;
+                                }
+                                break;
                 }
+
         EndDrawing();
 }
