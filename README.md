@@ -1,5 +1,5 @@
 # Cnake
-Snake game implemented in C using the raylib library, with vim keybindings for movement.
+Snake game implemented in C using the raylib library, with vim motions for movement.
 
 </br>
 
@@ -22,7 +22,9 @@ Snake game implemented in C using the raylib library, with vim keybindings for m
 </br>
 
 ## Features
-- Vim keybindings for movement (J, K, L, H)
+- Vim motions (J, K, L, H)
+- Basic Title Screen
+- Score tracking to keep track of the player's progress
 - Randomized food spawning
 - Snake grows longer when it eats food
 - Game over condition when the snake collides with the boundaries or itself
@@ -30,10 +32,22 @@ Snake game implemented in C using the raylib library, with vim keybindings for m
 </br>
 </br>
 
+## Demo
+![Demo](https://github.com/mr-ema/cnake/blob/main/assets/demo.gif)
+
+</br>
+</br>
+
 ## Run And Play
 ```
 git clone --recurse-submodules https://github.com/mr-ema/cnake
+```
+
+```
 cd cnake/
+```
+
+```
 zig build run
 ```
 
