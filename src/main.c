@@ -1,5 +1,4 @@
 #include "raylib.h"
-#include "math.h"
 
 #include "types.h"
 #include "food.h"
@@ -72,7 +71,7 @@ int main(void) {
                         if (IsKeyPressed(KEY_P)) {
                                 game_state = game_state == PAUSED ? PLAYING : PAUSED;
                         }
-
+                  
                         if (IsKeyPressed(KEY_R)) { 
                                 game_state = RESTART;
                                 new_game();
