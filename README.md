@@ -1,5 +1,5 @@
 # Cnake
-Snake game implemented in C using the raylib library, with vim motions for movement.
+Snake game implemented in C using the raylib library, with vim motions by default for movement.
 
 </br>
 
@@ -22,12 +22,11 @@ Snake game implemented in C using the raylib library, with vim motions for movem
 </br>
 
 ## Features
-- Vim motions (J, K, L, H)
-- Basic Title Screen
-- Score tracking to keep track of the player's progress
-- Randomized food spawning
-- Snake grows longer when it eats food
-- Game over condition when the snake collides with the boundaries or itself
+- [x] Basic Title Screen
+- [x] Score tracking to keep track of the player's progress
+- [x] Randomized food spawning
+- [x] Snake grows longer when it eats food
+- [x] Game over condition when the snake collides with the boundaries or itself
  
 </br>
 </br>
@@ -38,17 +37,16 @@ Snake game implemented in C using the raylib library, with vim motions for movem
 </br>
 </br>
 
-## Run And Play
+## How To Build
+Before you start, make sure you have the required dependencies for
+raylib installed. Refer to the official [raylib - build and installation
+guide](https://github.com/raysan5/raylib#build-and-installation) for
+instructions on setting up the necessary environment.
+
 ```
 git clone --recurse-submodules https://github.com/mr-ema/cnake
-```
-
-```
 cd cnake/
-```
-
-```
-zig build run
+zig build
 ```
 
 </br>
