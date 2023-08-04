@@ -13,9 +13,9 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    // Working in zig 0.11.0-dev
-    exe.addIncludePath("libs/raylib/src");
-    exe.linkLibrary(raylib.addRaylib(b, target, optimize));
+    // Working in zig 0.11.0
+    exe.addIncludePath(.{ .path = "libs/raylib/src" });
+    exe.linkLibrary(raylib.addRaylib(b, target, optimize, .{}));
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);
