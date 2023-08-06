@@ -27,6 +27,9 @@ Snake game implemented in C using the raylib library, with vim motions by defaul
 - [x] Randomized food spawning
 - [x] Snake grows longer when it eats food
 - [x] Game over condition when the snake collides with the boundaries or itself
+- [ ] Options menu
+- [ ] Configurable controls at run-time [Options menu]
+- [ ] Configurable mode (easy - normal - hard) [Options menu)
  
 </br>
 </br>
