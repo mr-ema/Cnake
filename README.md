@@ -50,12 +50,6 @@ zig build
 ```
 
 </br>
-
->__Note__\
->\
-> If the snake speed is too fast, [here is a link to raylib snake game example with a solution](https://github.com/raysan5/raylib-games/blob/master/classics/src/snake.c#L176).
-
-</br>
 </br>
 
 ## Acknowledgements
