@@ -5,18 +5,18 @@
 #include "collision.h"
 
 // Configurations
-#define TARGET_FPS 10
+#define TARGET_FPS 60
 #define CNAKE_LEN 1024
 #define TILE_SIZE (u8)30
 #define OFFSET_X (float)200
 #define OFFSET_Y (float)200
+#define FRAME_UPDATE_INTERVAL (u8)5
 
 // Colors
 #define GRIDCOLOR   (Color){ 30, 30, 30, 255 }
 #define HEAD_COLOR  (Color){ 0, 150, 0, 255 }
 #define BODY_COLOR  (Color){ 0, 100, 0, 255 }
 #define FRUIT_COLOR (Color){ 150, 0, 0, 255 }
-
 
 // Struct Definition
 typedef enum GameState {
@@ -42,6 +42,7 @@ static Vector2 BOUNDERY_MAX;
 
 static GameState game_state;
 static u32 score;
+static u8 frame_counter = 0;
 
 static Food fruit;
 static Snake snake;
@@ -57,7 +58,6 @@ static void draw_game(void);
 static void draw_win_text(void);
 static void draw_game_over(u16 font_size, Color color);
 static void draw_title_screen(u16 text_size, Color bg_color, Color text_color);
-
 
 int main(void) {
         InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Cnake");
@@ -91,6 +91,7 @@ int main(void) {
 void new_game(void) {
         game_state = game_state == RESTART ? PLAYING : TITLE_SCREEN;
         score = 0;
+        frame_counter = 0;
 
         // Create a grid
         grid = (Grid) {
@@ -128,7 +129,10 @@ void new_game(void) {
 
 void update_game(void) {
         move_snake(&snake, grid.tile_size);
-        update_snake(&snake);
+        if ((frame_counter % FRAME_UPDATE_INTERVAL) == 0) {
+                update_snake(&snake);
+        }
+
         spawn_food(&fruit, grid); 
 
         if (check_snake_self_collision(&snake) || check_snake_wall_collision(&snake, BOUNDERY_MIN, BOUNDERY_MAX)) {
@@ -143,6 +147,13 @@ void update_game(void) {
                 fruit.active = false;
 
                 PlaySound(crunch);
+        }
+
+        // Reset frame counter before it overflows
+        if (frame_counter < 240) {
+                frame_counter += 1;
+        } else {
+                frame_counter = 0;
         }
 }
 
