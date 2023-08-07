@@ -19,24 +19,27 @@ typedef struct Snake {
         size_t len;
 } Snake;
 
-static void move_snake(Snake*, const float);
+static void move_snake(Snake*, const float, bool*);
 static void update_snake(Snake*);
 static void draw_snake(const Snake*);
 
-static void move_snake(Snake *snake, const float speed) {
-        if (IsKeyPressed(KEY_J) && snake->speed.y != -speed) {
+static void move_snake(Snake *snake, const float speed, bool *allow_move) {
+        if (IsKeyPressed(KEY_J) && snake->speed.y == 0 && allow_move) {
                 snake->speed = (Vector2){ 0, speed };
+                *allow_move = false;
         }
-        else if (IsKeyPressed(KEY_K) && snake->speed.y != speed) {
+        else if (IsKeyPressed(KEY_K) && snake->speed.y == 0 && allow_move) {
                 snake->speed = (Vector2){ 0, -speed };
+                *allow_move = false;
         }
-        else if (IsKeyPressed(KEY_H) && snake->speed.x != speed) {
+        else if (IsKeyPressed(KEY_H) && snake->speed.x == 0 && allow_move) {
                 snake->speed = (Vector2){ -speed, 0 };
+                *allow_move = false;
         }
-        else if (IsKeyPressed(KEY_L) && snake->speed.x != -speed) {
+        else if (IsKeyPressed(KEY_L) && snake->speed.x == 0 && allow_move) {
                 snake->speed = (Vector2){ speed, 0 };
+                *allow_move = false;
         }
-
 }
 
 static void update_snake(Snake *snake) {

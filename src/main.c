@@ -47,6 +47,7 @@ static u8 frame_counter = 0;
 static Food fruit;
 static Snake snake;
 static SnakeSegment snake_body[CNAKE_LEN] = { 0 };
+static bool allow_move = false;
 
 // Audio
 Sound crunch;
@@ -92,6 +93,7 @@ void new_game(void) {
         game_state = game_state == RESTART ? PLAYING : TITLE_SCREEN;
         score = 0;
         frame_counter = 0;
+        allow_move = false;
 
         // Create a grid
         grid = (Grid) {
@@ -128,9 +130,13 @@ void new_game(void) {
 }
 
 void update_game(void) {
-        move_snake(&snake, grid.tile_size);
+        if (allow_move) {
+                move_snake(&snake, grid.tile_size, &allow_move);
+        }
+
         if ((frame_counter % FRAME_UPDATE_INTERVAL) == 0) {
                 update_snake(&snake);
+                allow_move = true;
         }
 
         spawn_food(&fruit, grid); 
