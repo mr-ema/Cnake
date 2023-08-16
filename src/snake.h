@@ -2,47 +2,67 @@
 #define CNAKE_SNAKE_H
 
 #include <stddef.h>
+#include "config.h"
 #include "raylib.h"
 #include "grid.h"
+#include "types.h"
 
 typedef struct SnakeSegment {
         Vector2 position;
         Color color;
 } SnakeSegment;
 
-typedef struct Snake {
+typedef struct {
         struct SnakeSegment head;
-        struct SnakeSegment *body;
+        struct SnakeSegment body[CNAKE_LEN];
+        Sound crunch_sound;
         
         Vector2 speed;
         Vector2 size;
         size_t len;
+
+        u32 score;
+        bool allow_move;
 } Snake;
 
-static void move_snake(Snake*, const float, bool*);
-static void update_snake(Snake*);
-static void draw_snake(const Snake*);
+static void handle_snake(Snake* snake, const Grid* grid, GameState* state);
+static void move_snake(Snake* snake, float speed);
+static void update_snake(Snake* snake);
+static void draw_snake(const Snake* snake);
+static u8 frame_counter = 0;
 
-static void move_snake(Snake *snake, const float speed, bool *allow_move) {
-        if (IsKeyPressed(KEY_J) && snake->speed.y == 0 && allow_move) {
+static void handle_snake(Snake* snake, const Grid* grid, GameState* state) {
+        move_snake(snake, grid->tile_size);
+        if (frame_counter % FRAME_UPDATE_INTERVAL == 0) {
+                update_snake(snake);
+                snake->allow_move = true;
+        }
+
+        draw_snake(snake);
+
+        frame_counter = (frame_counter < MAX_U8) ? frame_counter + 1 : 0;
+}
+
+static void move_snake(Snake* snake, float speed) {
+        if (IsKeyPressed(KEY_J) && snake->speed.y == 0 && snake->allow_move) {
                 snake->speed = (Vector2){ 0, speed };
-                *allow_move = false;
+                snake->allow_move = false;
         }
-        else if (IsKeyPressed(KEY_K) && snake->speed.y == 0 && allow_move) {
+        else if (IsKeyPressed(KEY_K) && snake->speed.y == 0 && snake->allow_move) {
                 snake->speed = (Vector2){ 0, -speed };
-                *allow_move = false;
+                snake->allow_move = false;
         }
-        else if (IsKeyPressed(KEY_H) && snake->speed.x == 0 && allow_move) {
+        else if (IsKeyPressed(KEY_H) && snake->speed.x == 0 && snake->allow_move) {
                 snake->speed = (Vector2){ -speed, 0 };
-                *allow_move = false;
+                snake->allow_move = false;
         }
-        else if (IsKeyPressed(KEY_L) && snake->speed.x == 0 && allow_move) {
+        else if (IsKeyPressed(KEY_L) && snake->speed.x == 0 && snake->allow_move) {
                 snake->speed = (Vector2){ speed, 0 };
-                *allow_move = false;
+                snake->allow_move = false;
         }
 }
 
-static void update_snake(Snake *snake) {
+static void update_snake(Snake* snake) {
         snake->body[0].position = snake->head.position;
 
         snake->head.position.x += snake->speed.x;

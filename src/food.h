@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include "raylib.h"
 #include "grid.h"
+#include "types.h"
 
 typedef struct Food {
         Rectangle rec;
@@ -12,15 +13,21 @@ typedef struct Food {
         Color color;
 } Food;
 
-static void spawn_food(Food*, const Grid);
-static void draw_food(const Food*);
+static void handle_food(Food* fruit, GameState* state, const Grid* grid);
+static void spawn_food(Food* fruit, const Grid* grid);
+static void draw_food(const Food* fruit);
 
-static void spawn_food(Food *food, const Grid grid) {
+static void handle_food(Food* food, GameState* state, const Grid* grid) {
+        spawn_food(food, grid);
+        draw_food(food);
+}
+
+static void spawn_food(Food *food, const Grid* grid) {
         if (!food->active) {
                 food->active = true;
 
-                food->rec.x = GetRandomValue(0, grid.columns - 1)  * grid.tile_size + grid.start_x;
-                food->rec.y = GetRandomValue(0, grid.rows - 1) * grid.tile_size + grid.start_y;
+                food->rec.x = GetRandomValue(0, grid->columns - 1)  * grid->tile_size + grid->start_x;
+                food->rec.y = GetRandomValue(0, grid->rows - 1) * grid->tile_size + grid->start_y;
         }
 }
 

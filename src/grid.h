@@ -2,26 +2,44 @@
 #define CNAKE_GRID_H
 
 #include "types.h"
+#include "config.h"
 #include "raylib.h"
 
-typedef struct Grid {
+typedef struct {
         u32 columns;
         u32 rows;
         u8 tile_size;
 
-        u16 start_x;
-        u16 start_y;
+        float start_x;
+        float start_y;
 } Grid;
 
-// Grid functions
-static void draw_grid(const Grid*, const Color, const Color);
+typedef enum {
+        GRID_DEFAULT,
+        GRID_ONLY_BORDERS,
+} GridOptions;
 
-static void draw_grid(const Grid* grid, Color color_x, Color color_y) {
+// Grid functions
+Grid init_grid();
+static void handle_grid(const Grid* grid, GridOptions options);
+static void draw_grid(const Grid* grid);
+
+// TODO: Add a function to only draw the grid borders.
+
+static void handle_grid(const Grid* grid, GridOptions options) {
+        if (options == GRID_ONLY_BORDERS) {
+                // draw_grid_borders(grid);
+        } else {
+                draw_grid(grid);
+        }
+};
+
+static void draw_grid(const Grid* grid) {
         for (u32 i = 0; i <= grid->columns; i++) {
                 DrawLineV(
                         (Vector2){ grid->start_x + grid->tile_size * i, grid->start_y },
                         (Vector2){ grid->start_x + grid->tile_size * i, grid->start_y + grid->rows * grid->tile_size },
-                        color_y
+                        GRID_COLOR
                 );
         }
 
@@ -29,7 +47,7 @@ static void draw_grid(const Grid* grid, Color color_x, Color color_y) {
                 DrawLineV(
                         (Vector2){ grid->start_x, grid->start_y + grid->tile_size * i },
                         (Vector2){ grid->start_x + grid->columns * grid->tile_size, grid->start_y + grid->tile_size * i },
-                        color_x
+                        GRID_COLOR
                 );
         }
 }
