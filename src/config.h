@@ -11,6 +11,14 @@
 #define OFFSET_Y (float)200
 #define FRAME_UPDATE_INTERVAL (u8)5
 
+// Default controls
+#define DEFAULT_KEY_MOVE_UP     KEY_K
+#define DEFAULT_KEY_MOVE_DOWN   KEY_J
+#define DEFAULT_KEY_MOVE_LEFT   KEY_H
+#define DEFAULT_KEY_MOVE_RIGHT  KEY_L
+#define DEFAULT_KEY_PAUSE_GAME  KEY_ESCAPE
+#define DEFAULT_KEY_GOBACK      KEY_ESCAPE
+
 // Colors
 #define SCREEN_BACKGROUND       (Color){ 0, 0, 0, 255 }
 #define GRID_COLOR              (Color){ 50, 50, 50, 255 }

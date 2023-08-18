@@ -13,6 +13,7 @@ typedef struct {
         GameState state;
         u32 screen_width;
         u32 screen_height;
+        bool exit_game;
         Grid grid;
         u32 max_score;
 
@@ -35,6 +36,7 @@ static Game init_game(void) {
                 .state = TITLE_SCREEN,
                 .screen_width = SCREEN_WIDTH,
                 .screen_height = SCREEN_HEIGHT,
+                .exit_game = false,
                 .max_score = (ROWS * COLUMNS) - 1,
         };
 

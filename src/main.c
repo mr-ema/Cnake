@@ -1,4 +1,6 @@
 #include "raylib.h"
+#include "controls.h"
+#include "menu.h"
 #include "config.h"
 #include "game.h"
 #include "title_screen.h"
@@ -20,7 +22,12 @@ int main(void) {
 
                 SetTargetFPS(TARGET_FPS);
 
-                while (!WindowShouldClose()) {
+                SetExitKey(KEY_NULL);
+                while (!game.exit_game) {
+                        if (WindowShouldClose()) {
+                                game.state = EXIT_GAME;
+                        }
+
                         update_game(&game);
                 }
 
@@ -35,14 +42,11 @@ static void update_game(Game* game) {
                 case TITLE_SCREEN:
                         handle_title_screen(game->screen_width, game->screen_height, &game->state);
                         break;
-                case PAUSED:
-                        BeginDrawing();
-                                DrawText("PAUSED", game->screen_width/2 - MeasureText("PAUSED", 40)/2, game->screen_height/2 - 40, 40, RAYWHITE);
-                        EndDrawing();
-
-                        if (IsKeyPressed(KEY_P)) {
-                                game->state = (game->state == PAUSED) ? PLAYING : PAUSED;
-                        }
+                case PLAYING:
+                        handle_playing(game);
+                        break;
+                case MENU:
+                        handle_menu(&game->state);
                         break;
                 case GAME_OVER:
                         handle_game_over(game->screen_width, game->screen_height, &game->state);
@@ -53,8 +57,8 @@ static void update_game(Game* game) {
                 case WIN:
                         handle_win_state(game->screen_width, game->screen_height, &game->state);
                         break;
-                default:
-                        handle_playing(game);
+                case EXIT_GAME:
+                        game->exit_game = true;
                         break;
         }
 }
@@ -77,7 +81,7 @@ static void handle_playing(Game* game) {
                 DrawText(TextFormat("SCORE: %i", game->snake.score), 30, 20, 20, RAYWHITE);
         EndDrawing();
 
-        if (IsKeyPressed(KEY_P)) {
-                game->state = (game->state == PAUSED) ? PLAYING : PAUSED;
+        if (IsKeyPressed(get_keybinding(PAUSE_GAME))) {
+                game->state = MENU;
         }
 }
