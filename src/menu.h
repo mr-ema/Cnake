@@ -55,21 +55,25 @@ static void handle_menu(GameState* state) {
         set_options(menu_options, menu_options_len, font_size);
 
         while (*state == MENU) {
+                if (WindowShouldClose()) {
+                        menu_state = EXIT;
+                }
+
                 switch (menu_state) {
                         case MAIN_MENU: 
-                                watch_menu(menu_options, menu_options_len, font_size, &menu_state);
                                 if (IsKeyPressed(get_keybinding(PAUSE_GAME))) {
                                         *state = PLAYING;
                                 }
+                                watch_menu(menu_options, menu_options_len, font_size, &menu_state);
                                 break;
                         case RESUME:
                                 *state = PLAYING;
                                 break;
                         case CONTROLS_MENU:
-                                watch_menu(control_options, controls_options_len, font_size, &menu_state);
                                 if (IsKeyPressed(get_keybinding(GOBACK))) {
                                         menu_state = MAIN_MENU;
                                 }
+                                watch_menu(control_options, controls_options_len, font_size, &menu_state);
                                 break;
                         case CHANGE_UP_KEY:
                                 handle_change_key(MOVE_UP, &menu_state);
@@ -87,10 +91,6 @@ static void handle_menu(GameState* state) {
                                 *state = EXIT_GAME;
                                 break;
                 }
-
-                if (WindowShouldClose()) {
-                        *state = EXIT_GAME;
-                }
         }
 }
 
@@ -102,14 +102,17 @@ static void handle_change_key(ControlActions action, MenuState* state) {
 
         int key = 0;
         int last_key = get_keybinding(action);
+        bool done = false;
 
-        while (!IsKeyPressed(KEY_ESCAPE)) {
+        while (!done) {
                 if (WindowShouldClose()) {
                         *state = EXIT;
-                        break;
+                        done = true;
+                } else if (IsKeyPressed(get_keybinding(GOBACK))) {
+                        done = true;
                 } else if (IsKeyPressed(KEY_ENTER)) {
                         set_keybinding(action, last_key);
-                        break;
+                        done = true;
                 }
 
                 last_key = key == 0 ? last_key : key;

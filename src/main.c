@@ -67,6 +67,8 @@ static void handle_playing(Game* game) {
         if (game->snake.len == CNAKE_LEN || game->snake.score == game->max_score) {
                 game->state = WIN;
                 return;
+        } else if (IsKeyPressed(get_keybinding(PAUSE_GAME))) {
+                game->state = MENU;
         }
 
         BeginDrawing();
@@ -80,8 +82,4 @@ static void handle_playing(Game* game) {
                 DrawFPS(game->screen_width - 100, 20);
                 DrawText(TextFormat("SCORE: %i", game->snake.score), 30, 20, 20, RAYWHITE);
         EndDrawing();
-
-        if (IsKeyPressed(get_keybinding(PAUSE_GAME))) {
-                game->state = MENU;
-        }
 }

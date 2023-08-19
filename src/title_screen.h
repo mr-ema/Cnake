@@ -9,12 +9,12 @@ static void draw_title_screen(const u32 screen_width, const u32 screen_height);
 
 static void handle_title_screen(const u32 screen_width, const u32 screen_height, GameState* state) {
         BeginDrawing();
+                if (IsKeyPressed(KEY_ENTER)) {
+                        *state = PLAYING;
+                }
+
                 draw_title_screen(screen_width, screen_height);
         EndDrawing();
-
-        if (IsKeyPressed(KEY_ENTER)) {
-                *state = PLAYING;
-        }
 }
 
 static void draw_title_screen(const u32 screen_width, const u32 screen_height) {
