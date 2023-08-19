@@ -23,16 +23,25 @@ typedef enum {
 Grid init_grid();
 static void handle_grid(const Grid* grid, GridOptions options);
 static void draw_grid(const Grid* grid);
-
-// TODO: Add a function to only draw the grid borders.
+static void draw_grid_borders(const Grid* grid);
 
 static void handle_grid(const Grid* grid, GridOptions options) {
         if (options == GRID_ONLY_BORDERS) {
-                // draw_grid_borders(grid);
+                draw_grid_borders(grid);
         } else {
                 draw_grid(grid);
         }
 };
+
+static void draw_grid_borders(const Grid* grid) {
+        DrawRectangleLines(
+                grid->start_x,
+                grid->start_y,
+                grid->columns * grid->tile_size,
+                grid->rows * grid->tile_size,
+                GRID_BORDER_COLOR
+        );
+}
 
 static void draw_grid(const Grid* grid) {
         for (u32 i = 0; i <= grid->columns; i++) {
