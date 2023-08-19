@@ -5,6 +5,7 @@
 
 /* Type size */
 #define MAX_U8 255
+#define nil ((void*)0)
 
 /* Unsigned int types */
 typedef uint8_t  u8;
@@ -18,10 +19,11 @@ typedef int32_t  i32;
 typedef enum GameState {
         TITLE_SCREEN,
         GAME_OVER,
-        PAUSED,
+        MENU,
         PLAYING,
         WIN,
-        RESTART
+        RESTART,
+        EXIT_GAME
 } GameState;
 
 #endif

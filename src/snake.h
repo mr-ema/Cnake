@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include "config.h"
+#include "controls.h"
 #include "raylib.h"
 #include "grid.h"
 #include "types.h"
@@ -44,19 +45,19 @@ static void handle_snake(Snake* snake, const Grid* grid, GameState* state) {
 }
 
 static void move_snake(Snake* snake, float speed) {
-        if (IsKeyPressed(KEY_J) && snake->speed.y == 0 && snake->allow_move) {
+        if (IsKeyPressed(get_keybinding(MOVE_DOWN)) && snake->speed.y == 0 && snake->allow_move) {
                 snake->speed = (Vector2){ 0, speed };
                 snake->allow_move = false;
         }
-        else if (IsKeyPressed(KEY_K) && snake->speed.y == 0 && snake->allow_move) {
+        else if (IsKeyPressed(get_keybinding(MOVE_UP)) && snake->speed.y == 0 && snake->allow_move) {
                 snake->speed = (Vector2){ 0, -speed };
                 snake->allow_move = false;
         }
-        else if (IsKeyPressed(KEY_H) && snake->speed.x == 0 && snake->allow_move) {
+        else if (IsKeyPressed(get_keybinding(MOVE_LEFT)) && snake->speed.x == 0 && snake->allow_move) {
                 snake->speed = (Vector2){ -speed, 0 };
                 snake->allow_move = false;
         }
-        else if (IsKeyPressed(KEY_L) && snake->speed.x == 0 && snake->allow_move) {
+        else if (IsKeyPressed(get_keybinding(MOVE_RIGHT)) && snake->speed.x == 0 && snake->allow_move) {
                 snake->speed = (Vector2){ speed, 0 };
                 snake->allow_move = false;
         }

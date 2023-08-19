@@ -1,8 +1,12 @@
 const std = @import("std");
-
 const raylib = @import("libs/raylib/src/build.zig");
 
 pub fn build(b: *std.Build) void {
+    const cnake_flags = &[_][]const u8{
+        "-std=gnu99",
+        "-D_GNU_SOURCE",
+    };
+
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
@@ -16,6 +20,8 @@ pub fn build(b: *std.Build) void {
     // Working in zig 0.11.0
     exe.addIncludePath(.{ .path = "libs/raylib/src" });
     exe.linkLibrary(raylib.addRaylib(b, target, optimize, .{}));
+    exe.addCSourceFiles(&.{"src/controls.c"}, cnake_flags);
+
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);

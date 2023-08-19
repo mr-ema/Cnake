@@ -8,13 +8,13 @@ static void handle_game_over(const u32 screen_width, const u32 screen_height, Ga
 static void draw_game_over(const u32 screen_width, const u32 screen_height);
 
 static void handle_game_over(const u32 screen_width, const u32 screen_height, GameState* state) {
-        BeginDrawing();
-                draw_game_over(screen_width, screen_height);
-        EndDrawing();
-
         if (IsKeyPressed(KEY_R)) {
                 *state = RESTART;
         }
+
+        BeginDrawing();
+                draw_game_over(screen_width, screen_height);
+        EndDrawing();
 }
 
 static void draw_game_over(const u32 screen_width, const u32 screen_height) {

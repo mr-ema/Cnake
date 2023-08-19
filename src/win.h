@@ -8,13 +8,13 @@ static void handle_win_state(const u32 screen_width, const u32 screen_height, Ga
 static void draw_win_text(const u32 screen_width, const u32 screen_height);
 
 static void handle_win_state(const u32 screen_width, const u32 screen_height, GameState* state) {
-        BeginDrawing();
-                draw_win_text(screen_width, screen_height);
-        EndDrawing();
-
         if (IsKeyPressed(KEY_R)) {
                 *state = RESTART;
         }
+
+        BeginDrawing();
+                draw_win_text(screen_width, screen_height);
+        EndDrawing();
 }
 
 static void draw_win_text(const u32 screen_width, const u32 screen_height) {

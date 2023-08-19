@@ -13,6 +13,7 @@ typedef struct {
         GameState state;
         u32 screen_width;
         u32 screen_height;
+        bool exit_game;
         Grid grid;
         u32 max_score;
 
@@ -28,13 +29,12 @@ static void deinit_game(Game* game);
 static Game init_game(void) {
         const u32 COLUMNS = (SCREEN_WIDTH - OFFSET_X) / TILE_SIZE;
         const u32 ROWS = (SCREEN_HEIGHT - OFFSET_Y) / TILE_SIZE;
-        Vector2 BOUNDERY_MIN;
-        Vector2 BOUNDERY_MAX;
 
         Game game = {
                 .state = TITLE_SCREEN,
                 .screen_width = SCREEN_WIDTH,
                 .screen_height = SCREEN_HEIGHT,
+                .exit_game = false,
                 .max_score = (ROWS * COLUMNS) - 1,
         };
 
@@ -46,10 +46,6 @@ static Game init_game(void) {
                 .start_x = (SCREEN_WIDTH - (COLUMNS * TILE_SIZE + OFFSET_X)) / 2 + OFFSET_X / 2,
                 .start_y = (SCREEN_HEIGHT - (ROWS * TILE_SIZE + OFFSET_Y)) / 2 + OFFSET_Y / 2
         };
-
-        // Set wall boundaries
-        BOUNDERY_MIN = (Vector2){ grid.start_x, game.grid.start_y };
-        BOUNDERY_MAX = (Vector2){ (SCREEN_WIDTH - OFFSET_X / 2), (SCREEN_HEIGHT - OFFSET_Y / 2) };
 
         Snake snake = {
                 .head = (SnakeSegment){
