@@ -16,7 +16,9 @@ static void update_game(Game* game);
 int main(void) {
         Game game = init_game();
 
+        SetConfigFlags(FLAG_WINDOW_RESIZABLE);
         InitWindow(game.screen_width, game.screen_height, "Cnake");
+
                 InitAudioDevice();
                 init_resources(&game);
 
@@ -26,6 +28,13 @@ int main(void) {
                 while (!game.exit_game) {
                         if (WindowShouldClose()) {
                                 game.state = EXIT_GAME;
+                        }
+
+                        if (IsWindowResized() && !IsWindowFullscreen()) {
+                                game.screen_width = GetScreenWidth();
+                                game.screen_height = GetScreenHeight();
+
+                                resize_grid(&game.grid, game.screen_width, game.screen_height);
                         }
 
                         update_game(&game);

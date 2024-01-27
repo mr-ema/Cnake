@@ -2,6 +2,7 @@
 #define CNAKE_GAME_OVER_H
 
 #include "raylib.h"
+#include "config.h"
 #include "types.h"
 
 static void handle_game_over(const u32 screen_width, const u32 screen_height, GameState* state);
@@ -13,6 +14,7 @@ static void handle_game_over(const u32 screen_width, const u32 screen_height, Ga
         }
 
         BeginDrawing();
+        ClearBackground(SCREEN_BACKGROUND);
                 draw_game_over(screen_width, screen_height);
         EndDrawing();
 }

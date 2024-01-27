@@ -89,7 +89,7 @@ static void deinit_game(Game* game) {
 static void restard_game(Game* game) {
         game->snake.score = 0;
         game->snake.len = 1;
-        game->snake.head.position = (Vector2){ game->grid.start_x, game->grid.start_y };
+        game->snake.head.position = (Vector2){ game->grid.start_x + game->grid.tile_size, game->grid.start_y };
         game->snake.speed = (Vector2){ (float)game->grid.tile_size, 0 };
         game->snake.allow_move = false;
 
