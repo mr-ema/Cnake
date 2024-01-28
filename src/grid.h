@@ -24,6 +24,7 @@ Grid init_grid();
 static void handle_grid(const Grid* grid, GridOptions options);
 static void draw_grid(const Grid* grid);
 static void draw_grid_borders(const Grid* grid);
+static void recenter_grid(Grid* grid, u32 screen_width, u32 screen_height);
 
 static void handle_grid(const Grid* grid, GridOptions options) {
         if (options == GRID_ONLY_BORDERS) {
@@ -61,7 +62,7 @@ static void draw_grid(const Grid* grid) {
         }
 }
 
-static void resize_grid(Grid* grid, u32 screen_width, u32 screen_height) {
+static void recenter_grid(Grid* grid, u32 screen_width, u32 screen_height) {
         u32 grid_width = grid->columns * grid->tile_size;
         u32 grid_height = grid->rows * grid->tile_size;
 
