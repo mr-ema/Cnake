@@ -1,3 +1,4 @@
+#include "grid.h"
 #include "raylib.h"
 #include "controls.h"
 #include "menu.h"
@@ -16,7 +17,9 @@ static void update_game(Game* game);
 int main(void) {
         Game game = init_game();
 
+        SetConfigFlags(FLAG_WINDOW_RESIZABLE);
         InitWindow(game.screen_width, game.screen_height, "Cnake");
+
                 InitAudioDevice();
                 init_resources(&game);
 
@@ -26,6 +29,28 @@ int main(void) {
                 while (!game.exit_game) {
                         if (WindowShouldClose()) {
                                 game.state = EXIT_GAME;
+                        } else if (IsWindowResized() && !IsWindowFullscreen()) {
+                                game.screen_width = GetScreenWidth();
+                                game.screen_height = GetScreenHeight();
+                                
+                                u32 old_grid_start_x = game.grid.start_x;
+                                u32 old_grid_start_y = game.grid.start_y; 
+
+                                recenter_grid(&game.grid, game.screen_width, game.screen_height);
+
+                                float offset_diff_x = (float)(game.grid.start_x - old_grid_start_x);
+                                float offset_diff_y = (float)(game.grid.start_y - old_grid_start_y);
+
+                                game.fruit.rec.x += offset_diff_x;
+                                game.fruit.rec.y += offset_diff_y;
+
+                                game.snake.head.position.x += offset_diff_x;
+                                game.snake.head.position.y += offset_diff_y;
+
+                                for (u32 i = game.snake.len - 1; i > 0; i--) {
+                                        game.snake.body[i].position.x += offset_diff_x;
+                                        game.snake.body[i].position.y += offset_diff_y;
+                                }
                         }
 
                         update_game(&game);

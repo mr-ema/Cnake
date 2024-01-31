@@ -31,9 +31,9 @@ static void watch_menu(const Option options[], u8 options_len, u8 font_size, Men
 static bool is_mouse_over(const Option* option);
 static bool option_click(const Option* option);
 
-static void handle_menu(GameState* state) {
-        MenuState menu_state = MAIN_MENU;
+static MenuState menu_state = MAIN_MENU;
 
+static void handle_menu(GameState* state) {
         const u8 menu_options_len = 3;
         const u8 controls_options_len = 4;
         const u8 font_size = 20;
@@ -54,43 +54,38 @@ static void handle_menu(GameState* state) {
         set_options(control_options, controls_options_len, font_size);
         set_options(menu_options, menu_options_len, font_size);
 
-        while (*state == MENU) {
-                if (WindowShouldClose()) {
-                        menu_state = EXIT;
-                }
-
-                switch (menu_state) {
-                        case MAIN_MENU: 
-                                if (IsKeyPressed(get_keybinding(PAUSE_GAME))) {
-                                        *state = PLAYING;
-                                }
-                                watch_menu(menu_options, menu_options_len, font_size, &menu_state);
-                                break;
-                        case RESUME:
+        switch (menu_state) {
+                case MAIN_MENU: 
+                        if (IsKeyPressed(get_keybinding(PAUSE_GAME))) {
                                 *state = PLAYING;
-                                break;
-                        case CONTROLS_MENU:
-                                if (IsKeyPressed(get_keybinding(GOBACK))) {
-                                        menu_state = MAIN_MENU;
-                                }
-                                watch_menu(control_options, controls_options_len, font_size, &menu_state);
-                                break;
-                        case CHANGE_UP_KEY:
-                                handle_change_key(MOVE_UP, &menu_state);
-                                break;
-                        case CHANGE_LEFT_KEY:
-                                handle_change_key(MOVE_LEFT, &menu_state);
-                                break;
-                        case CHANGE_RIGHT_KEY:
-                                handle_change_key(MOVE_RIGHT, &menu_state);
-                                break;
-                        case CHANGE_DOWN_KEY:
-                                handle_change_key(MOVE_DOWN, &menu_state);
-                                break;
-                        case EXIT:
-                                *state = EXIT_GAME;
-                                break;
-                }
+                        }
+                        watch_menu(menu_options, menu_options_len, font_size, &menu_state);
+                        break;
+                case RESUME:
+                        *state = PLAYING;
+                        menu_state = MAIN_MENU;
+                        break;
+                case CONTROLS_MENU:
+                        if (IsKeyPressed(get_keybinding(GOBACK))) {
+                                menu_state = MAIN_MENU;
+                        }
+                        watch_menu(control_options, controls_options_len, font_size, &menu_state);
+                        break;
+                case CHANGE_UP_KEY:
+                        handle_change_key(MOVE_UP, &menu_state);
+                        break;
+                case CHANGE_LEFT_KEY:
+                        handle_change_key(MOVE_LEFT, &menu_state);
+                        break;
+                case CHANGE_RIGHT_KEY:
+                        handle_change_key(MOVE_RIGHT, &menu_state);
+                        break;
+                case CHANGE_DOWN_KEY:
+                        handle_change_key(MOVE_DOWN, &menu_state);
+                        break;
+                case EXIT:
+                        *state = EXIT_GAME;
+                        break;
         }
 }
 
