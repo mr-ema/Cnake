@@ -27,7 +27,6 @@ static void restard_game(Game* game);
 static void deinit_game(Game* game);
 
 static Game init_game(void) {
-        const u8 scale_tile_delta = 2;
         const u32 COLUMNS = (SCREEN_WIDTH - OFFSET_X) / TILE_SIZE;
         const u32 ROWS = (SCREEN_HEIGHT - OFFSET_Y) / TILE_SIZE;
 
@@ -36,7 +35,7 @@ static Game init_game(void) {
                 .screen_width = SCREEN_WIDTH,
                 .screen_height = SCREEN_HEIGHT,
                 .exit_game = false,
-                .max_score = ((ROWS * COLUMNS) - 1) / scale_tile_delta,
+                .max_score = ((ROWS * COLUMNS) - 1) / TILE_SCALE_DELTA,
         };
 
         Grid grid = {
@@ -55,7 +54,7 @@ static Game init_game(void) {
                 },
                 .speed_mode = NORMAL,
                 ._speed = (Vector2){ (float)grid.tile_size, 0 },
-                .size = (Vector2){ (float)grid.tile_size * scale_tile_delta, (float)grid.tile_size * scale_tile_delta },
+                .size = (Vector2){ (float)grid.tile_size * TILE_SCALE_DELTA, (float)grid.tile_size * TILE_SCALE_DELTA },
                 .len = 1,
                 .allow_move = false,
         };
@@ -66,7 +65,7 @@ static Game init_game(void) {
         }
 
         Food fruit = {
-                .rec = (Rectangle){ -100.0f, 0.0f, (float)grid.tile_size * scale_tile_delta, (float)grid.tile_size * scale_tile_delta },
+                .rec = (Rectangle){ -100.0f, 0.0f, (float)grid.tile_size * TILE_SCALE_DELTA, (float)grid.tile_size * TILE_SCALE_DELTA },
                 .active = false,
                 .color = FRUIT_COLOR,
         };
