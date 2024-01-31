@@ -53,10 +53,10 @@ static Game init_game(void) {
                         .position = (Vector2){ grid.start_x, grid.start_y },
                         .color = HEAD_COLOR,
                 },
-                .speed_mode = FAST,
+                .speed_mode = NORMAL,
                 ._speed = (Vector2){ (float)grid.tile_size, 0 },
                 .size = (Vector2){ (float)grid.tile_size * scale_tile_delta, (float)grid.tile_size * scale_tile_delta },
-                .len = 10,
+                .len = 1,
                 .allow_move = false,
         };
 

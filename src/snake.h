@@ -35,15 +35,16 @@ typedef struct {
 } Snake;
 
 static void handle_snake(Snake* snake, const Grid* grid, GameState* state);
-static float get_speed(Snake* snake, const Grid* grid);
+static u8 snake_frame_interval(Snake* snake);
 static void move_snake(Snake* snake, float speed);
 static void update_snake(Snake* snake);
 static void draw_snake(const Snake* snake);
 static u8 frame_counter = 0;
 
 static void handle_snake(Snake* snake, const Grid* grid, GameState* state) {
-        move_snake(snake, get_speed(snake, grid));
-        if (frame_counter % FRAME_UPDATE_INTERVAL == 0) {
+        move_snake(snake, snake->size.x);
+
+        if (frame_counter % snake_frame_interval(snake) == 0) {
                 update_snake(snake);
                 snake->allow_move = true;
         }
@@ -53,16 +54,16 @@ static void handle_snake(Snake* snake, const Grid* grid, GameState* state) {
         frame_counter = (frame_counter < MAX_U8) ? frame_counter + 1 : 0;
 }
 
-static float get_speed(Snake* snake, const Grid* grid) {
+static u8 snake_frame_interval(Snake* snake) {
         switch (snake->speed_mode) {
                 case SLOW:
-                        return (float)grid->tile_size;
+                        return 6;
                 case NORMAL:
-                        return (float)(grid->tile_size * 2);
+                        return 4;
                 case FAST:
-                        return (float)(grid->tile_size * 4);
+                        return 2;
                 case BLAZINGLY_FAST:
-                        return (float)(grid->tile_size * 8);
+                        return 1;
         }
 }
 
