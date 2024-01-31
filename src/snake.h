@@ -8,6 +8,13 @@
 #include "grid.h"
 #include "types.h"
 
+typedef enum {
+        SLOW,
+        NORMAL,
+        FAST,
+        BLAZINGLY_FAST
+} SnakeSpeedMode;
+
 typedef struct SnakeSegment {
         Vector2 position;
         Color color;
@@ -18,7 +25,8 @@ typedef struct {
         struct SnakeSegment body[CNAKE_LEN];
         Sound crunch_sound;
         
-        Vector2 speed;
+        SnakeSpeedMode speed_mode;
+        Vector2 _speed;
         Vector2 size;
         size_t len;
 
@@ -27,13 +35,14 @@ typedef struct {
 } Snake;
 
 static void handle_snake(Snake* snake, const Grid* grid, GameState* state);
+static float get_speed(Snake* snake, const Grid* grid);
 static void move_snake(Snake* snake, float speed);
 static void update_snake(Snake* snake);
 static void draw_snake(const Snake* snake);
 static u8 frame_counter = 0;
 
 static void handle_snake(Snake* snake, const Grid* grid, GameState* state) {
-        move_snake(snake, grid->tile_size);
+        move_snake(snake, get_speed(snake, grid));
         if (frame_counter % FRAME_UPDATE_INTERVAL == 0) {
                 update_snake(snake);
                 snake->allow_move = true;
@@ -44,21 +53,34 @@ static void handle_snake(Snake* snake, const Grid* grid, GameState* state) {
         frame_counter = (frame_counter < MAX_U8) ? frame_counter + 1 : 0;
 }
 
+static float get_speed(Snake* snake, const Grid* grid) {
+        switch (snake->speed_mode) {
+                case SLOW:
+                        return (float)grid->tile_size;
+                case NORMAL:
+                        return (float)(grid->tile_size * 2);
+                case FAST:
+                        return (float)(grid->tile_size * 4);
+                case BLAZINGLY_FAST:
+                        return (float)(grid->tile_size * 8);
+        }
+}
+
 static void move_snake(Snake* snake, float speed) {
-        if (IsKeyPressed(get_keybinding(MOVE_DOWN)) && snake->speed.y == 0 && snake->allow_move) {
-                snake->speed = (Vector2){ 0, speed };
+        if (IsKeyPressed(get_keybinding(MOVE_DOWN)) && snake->_speed.y == 0 && snake->allow_move) {
+                snake->_speed = (Vector2){ 0, speed };
                 snake->allow_move = false;
         }
-        else if (IsKeyPressed(get_keybinding(MOVE_UP)) && snake->speed.y == 0 && snake->allow_move) {
-                snake->speed = (Vector2){ 0, -speed };
+        else if (IsKeyPressed(get_keybinding(MOVE_UP)) && snake->_speed.y == 0 && snake->allow_move) {
+                snake->_speed = (Vector2){ 0, -speed };
                 snake->allow_move = false;
         }
-        else if (IsKeyPressed(get_keybinding(MOVE_LEFT)) && snake->speed.x == 0 && snake->allow_move) {
-                snake->speed = (Vector2){ -speed, 0 };
+        else if (IsKeyPressed(get_keybinding(MOVE_LEFT)) && snake->_speed.x == 0 && snake->allow_move) {
+                snake->_speed = (Vector2){ -speed, 0 };
                 snake->allow_move = false;
         }
-        else if (IsKeyPressed(get_keybinding(MOVE_RIGHT)) && snake->speed.x == 0 && snake->allow_move) {
-                snake->speed = (Vector2){ speed, 0 };
+        else if (IsKeyPressed(get_keybinding(MOVE_RIGHT)) && snake->_speed.x == 0 && snake->allow_move) {
+                snake->_speed = (Vector2){ speed, 0 };
                 snake->allow_move = false;
         }
 }
@@ -66,8 +88,8 @@ static void move_snake(Snake* snake, float speed) {
 static void update_snake(Snake* snake) {
         snake->body[0].position = snake->head.position;
 
-        snake->head.position.x += snake->speed.x;
-        snake->head.position.y += snake->speed.y;
+        snake->head.position.x += snake->_speed.x;
+        snake->head.position.y += snake->_speed.y;
 
         for (u32 i = snake->len - 1; i > 0; i--)
                 snake->body[i].position = snake->body[i - 1].position;
