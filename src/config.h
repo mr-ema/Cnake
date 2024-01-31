@@ -7,7 +7,7 @@
 #define TARGET_FPS 60
 #define CNAKE_LEN 1024
 #define TILE_SIZE (u8)10
-#define OFFSET_X (float)200
+#define OFFSET_X (float)500
 #define OFFSET_Y (float)200
 #define FRAME_UPDATE_INTERVAL (u8)5
 
