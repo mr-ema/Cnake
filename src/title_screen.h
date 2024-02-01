@@ -37,14 +37,15 @@ static void draw_title_screen(const u32 screen_width, const u32 screen_height, G
 
 
         ClearBackground(RAYWHITE);
-        DrawText("Press [Enter] To Start The Game!",
-                center_x - MeasureText("Press [Enter] To Start The Game!", font_size) / 2,
+        const char* title_str = "Chose A Mode Or Press [Enter] To Start The Game!";
+        DrawText(title_str,
+                center_x - MeasureText(title_str, font_size) / 2,
                 center_y - font_size,
                 font_size,
                 color
         );
 
-        const u16 btn_width = 100;
+        const u16 btn_width = 200;
         const u8 total_buttons = 4;
         const float btn_x = (float)(center_x - ((btn_width + 10) * ((float)total_buttons / 2)));
         const float btn_y = (float)(center_y + font_size + 40);
@@ -67,11 +68,17 @@ static void draw_title_screen(const u32 screen_width, const u32 screen_height, G
 static bool ui_label_button(Rectangle bounds, const char* text) {
         const Vector2 mouse_pos = GetMousePosition();
         const bool mouse_over = CheckCollisionPointRec(mouse_pos, bounds);
+        const u8 font_size = 20;
+
+        u16 text_width = MeasureText(text, font_size);
+        float text_x = bounds.x + (bounds.width - text_width) / 2;
+        float text_y = bounds.y + (bounds.height - font_size) / 2;
+
 
         if (mouse_over) {
-                DrawText(text, bounds.x, bounds.y, 20, RED);
+                DrawText(text, text_x, text_y, font_size, RED);
         } else {
-                DrawText(text, bounds.x, bounds.y, 20, BLACK);
+                DrawText(text, text_x, text_y, font_size, BLACK);
         }
 
         return (mouse_over && IsMouseButtonDown(MOUSE_BUTTON_LEFT));
