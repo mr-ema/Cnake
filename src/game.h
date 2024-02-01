@@ -35,7 +35,7 @@ static Game init_game(void) {
                 .screen_width = SCREEN_WIDTH,
                 .screen_height = SCREEN_HEIGHT,
                 .exit_game = false,
-                .max_score = (ROWS * COLUMNS) - 1,
+                .max_score = ((ROWS * COLUMNS) - 1) / TILE_SCALE_DELTA,
         };
 
         Grid grid = {
@@ -52,8 +52,9 @@ static Game init_game(void) {
                         .position = (Vector2){ grid.start_x, grid.start_y },
                         .color = HEAD_COLOR,
                 },
-                .speed = (Vector2){ (float)grid.tile_size, 0 },
-                .size = (Vector2){ (float)grid.tile_size, (float)grid.tile_size },
+                .speed_mode = NORMAL,
+                ._speed = (Vector2){ (float)grid.tile_size, 0 },
+                .size = (Vector2){ (float)grid.tile_size * TILE_SCALE_DELTA, (float)grid.tile_size * TILE_SCALE_DELTA },
                 .len = 1,
                 .allow_move = false,
         };
@@ -64,7 +65,7 @@ static Game init_game(void) {
         }
 
         Food fruit = {
-                .rec = (Rectangle){ -100.0f, 0.0f, (float)grid.tile_size, (float)grid.tile_size },
+                .rec = (Rectangle){ -100.0f, 0.0f, (float)grid.tile_size * TILE_SCALE_DELTA, (float)grid.tile_size * TILE_SCALE_DELTA },
                 .active = false,
                 .color = FRUIT_COLOR,
         };
@@ -90,7 +91,7 @@ static void restard_game(Game* game) {
         game->snake.score = 0;
         game->snake.len = 1;
         game->snake.head.position = (Vector2){ game->grid.start_x + game->grid.tile_size, game->grid.start_y };
-        game->snake.speed = (Vector2){ (float)game->grid.tile_size, 0 };
+        game->snake._speed = (Vector2){ (float)game->grid.tile_size, 0 };
         game->snake.allow_move = false;
 
         game->fruit.active = false;

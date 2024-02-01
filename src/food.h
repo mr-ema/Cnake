@@ -25,9 +25,12 @@ static void handle_food(Food* food, GameState* state, const Grid* grid) {
 static void spawn_food(Food *food, const Grid* grid) {
         if (!food->active) {
                 food->active = true;
+                u8 tile_size = grid->tile_size;
+                float max_x = grid->start_x + (grid->columns * tile_size) - food->rec.width;
+                float max_y = grid->start_y + (grid->rows * tile_size) - food->rec.height;
 
-                food->rec.x = GetRandomValue(0, grid->columns - 1)  * grid->tile_size + grid->start_x;
-                food->rec.y = GetRandomValue(0, grid->rows - 1) * grid->tile_size + grid->start_y;
+                food->rec.x = tile_size * (GetRandomValue(grid->start_x / tile_size, max_x / tile_size));
+                food->rec.y = tile_size * (GetRandomValue(grid->start_y / tile_size, max_y / tile_size));
         }
 }
 

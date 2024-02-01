@@ -29,7 +29,7 @@ Snake game implemented in C using the raylib library, with vim motions by defaul
 - [x] Game over condition when the snake collides with the boundaries or itself
 - [x] Options menu
 - [x] Configurable controls at run-time [Options menu]
-- [ ] Configurable mode (easy - normal - hard) [Options menu]
+- [x] Configurable mode (slow - normal - fast - blazingly fast)
  
 </br>
 </br>
@@ -60,4 +60,3 @@ This game was developed using [raylib](https://www.raylib.com/),
 a simple and easy-to-use game development library. raylib provides
 a rich set of functionality and is well-suited for creating 2D games
 and interactive applications.
-

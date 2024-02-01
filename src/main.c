@@ -65,7 +65,7 @@ int main(void) {
 static void update_game(Game* game) {
         switch (game->state) {
                 case TITLE_SCREEN:
-                        handle_title_screen(game->screen_width, game->screen_height, &game->state);
+                        handle_title_screen(game->screen_width, game->screen_height, game);
                         break;
                 case PLAYING:
                         handle_playing(game);
