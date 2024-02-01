@@ -6,9 +6,10 @@
 #include "types.h"
 
 typedef enum {
-        MAIN_MENU,
+        MAIN_MENU = 0,
         RESUME,
         CONTROLS_MENU,
+        BACK_TO_TITLE_SCREEN,
         CHANGE_LEFT_KEY,
         CHANGE_RIGHT_KEY,
         CHANGE_DOWN_KEY,
@@ -34,14 +35,15 @@ static bool option_click(const Option* option);
 static MenuState menu_state = MAIN_MENU;
 
 static void handle_menu(GameState* state) {
-        const u8 menu_options_len = 3;
+        const u8 menu_options_len = 4;
         const u8 controls_options_len = 4;
         const u8 font_size = 20;
 
         Option menu_options[] = {
-                { .label = " Resume ", .rect_bounds = { 0 }, .next_state = RESUME },
-                { .label = "Controls", .rect_bounds = { 0 }, .next_state = CONTROLS_MENU },
-                { .label = "  Exit  ", .rect_bounds = { 0 }, .next_state = EXIT },
+                { .label = "       Resume       ", .rect_bounds = { 0 }, .next_state = RESUME },
+                { .label = "      Controls      ", .rect_bounds = { 0 }, .next_state = CONTROLS_MENU },
+                { .label = "Back To Title Screen", .rect_bounds = { 0 }, .next_state = BACK_TO_TITLE_SCREEN },
+                { .label = "        Exit        ", .rect_bounds = { 0 }, .next_state = EXIT },
         };
 
         Option control_options[] = {
@@ -63,6 +65,10 @@ static void handle_menu(GameState* state) {
                         break;
                 case RESUME:
                         *state = PLAYING;
+                        menu_state = MAIN_MENU;
+                        break;
+                case BACK_TO_TITLE_SCREEN:
+                        *state = TITLE_SCREEN;
                         menu_state = MAIN_MENU;
                         break;
                 case CONTROLS_MENU:
