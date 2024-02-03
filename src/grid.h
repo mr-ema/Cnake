@@ -10,31 +10,15 @@ typedef struct {
         u32 rows;
         u8 tile_size;
 
-        float start_x;
-        float start_y;
+        f32 start_x;
+        f32 start_y;
 } Grid;
 
-typedef enum {
-        GRID_DEFAULT,
-        GRID_ONLY_BORDERS,
-} GridOptions;
+static void gridCenter(Grid* grid, u32 screen_width, u32 screen_height);
+static void gridDraw(const Grid* grid);
+static void gridDrawOnlyBorders(const Grid* grid);
 
-// Grid functions
-Grid init_grid();
-static void handle_grid(const Grid* grid, GridOptions options);
-static void draw_grid(const Grid* grid);
-static void draw_grid_borders(const Grid* grid);
-static void recenter_grid(Grid* grid, u32 screen_width, u32 screen_height);
-
-static void handle_grid(const Grid* grid, GridOptions options) {
-        if (options == GRID_ONLY_BORDERS) {
-                draw_grid_borders(grid);
-        } else {
-                draw_grid(grid);
-        }
-};
-
-static void draw_grid_borders(const Grid* grid) {
+static void gridDrawOnlyBorders(const Grid* grid) {
         DrawRectangleLines(
                 grid->start_x,
                 grid->start_y,
@@ -44,7 +28,7 @@ static void draw_grid_borders(const Grid* grid) {
         );
 }
 
-static void draw_grid(const Grid* grid) {
+static void gridDraw(const Grid* grid) {
         for (u32 i = 0; i <= grid->columns; i++) {
                 DrawLineV(
                         (Vector2){ grid->start_x + grid->tile_size * i, grid->start_y },
@@ -62,15 +46,15 @@ static void draw_grid(const Grid* grid) {
         }
 }
 
-static void recenter_grid(Grid* grid, u32 screen_width, u32 screen_height) {
+static void gridCenter(Grid* grid, u32 screen_width, u32 screen_height) {
         u32 grid_width = grid->columns * grid->tile_size;
         u32 grid_height = grid->rows * grid->tile_size;
 
         u32 offset_x = (screen_width - grid_width) / 2;
         u32 offset_y = (screen_height - grid_height) / 2;
 
-        grid->start_x = (float)offset_x;
-        grid->start_y = (float)offset_y;
+        grid->start_x = (f32)offset_x;
+        grid->start_y = (f32)offset_y;
 }
 
 #endif

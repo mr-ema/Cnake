@@ -1,15 +1,16 @@
 #ifndef CNAKE_CONFIG_H
 #define CNAKE_CONFIG_H
 
+#include "types.h"
+
 // Configurations
 #define SCREEN_WIDTH (u32)1280
 #define SCREEN_HEIGHT (u32)620
-#define OFFSET_X (float)500
-#define OFFSET_Y (float)300
+#define OFFSET_X (f32)500
+#define OFFSET_Y (f32)300
 #define TARGET_FPS 60
 #define TILE_SIZE (u8)10
 #define TILE_SCALE_DELTA (u8)2 /* Scale grid objects size */
-#define CNAKE_LEN (size_t)(((SCREEN_WIDTH - OFFSET_X) / TILE_SIZE) * ((SCREEN_HEIGHT - OFFSET_Y) / TILE_SIZE) / TILE_SCALE_DELTA)
 #define FRAME_UPDATE_INTERVAL (u8)5
 
 // Default controls

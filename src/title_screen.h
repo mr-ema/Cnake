@@ -5,30 +5,18 @@
 #include "snake.h"
 #include "types.h"
 #include "game.h"
+#include "gui.h"
 
-/*
-typedef enum {
-        IDLE = 0,
-        HOVERED,
-        PRESSED
-} ButtonState;
-*/
+static void titleSceneUpdate(Game* game);
+static void titleSceneRender(const u32 screen_width, const u32 screen_height, Game* game);
 
-static bool ui_label_button(Rectangle box, const char* text);
-static void handle_title_screen(const u32 screen_width, const u32 screen_height, Game* game);
-static void draw_title_screen(const u32 screen_width, const u32 screen_height, Game* game);
-
-static void handle_title_screen(const u32 screen_width, const u32 screen_height, Game* game) {
-        BeginDrawing();
-                if (IsKeyPressed(KEY_ENTER)) {
-                        game->state = PLAYING;
-                }
-
-                draw_title_screen(screen_width, screen_height, game);
-        EndDrawing();
+static void titleSceneUpdate(Game* game) {
+        if (IsKeyPressed(KEY_ENTER)) {
+                game->state = PLAYING;
+        }
 }
 
-static void draw_title_screen(const u32 screen_width, const u32 screen_height, Game* game) {
+static void titleSceneRender(const u32 screen_width, const u32 screen_height, Game* game) {
         const u8 font_size = 40;
         const Color color = BLACK;
 
@@ -47,41 +35,22 @@ static void draw_title_screen(const u32 screen_width, const u32 screen_height, G
 
         const u16 btn_width = 200;
         const u8 total_buttons = 4;
-        const float btn_x = (float)(center_x - ((btn_width + 10) * ((float)total_buttons / 2)));
-        const float btn_y = (float)(center_y + font_size + 40);
+        const f32 btn_x = (f32)(center_x - ((btn_width + 10) * ((f32)total_buttons / 2)));
+        const f32 btn_y = (f32)(center_y + font_size + 40);
 
-        if (ui_label_button((Rectangle){ btn_x , btn_y, btn_width, 50}, "Slow")) {
+        if (UILabelBtn((Rectangle){ btn_x , btn_y, btn_width, 50}, "Slow")) {
                 game->snake.speed_mode = SLOW;
                 game->state = PLAYING;
-        } else if (ui_label_button((Rectangle){btn_x + btn_width + 10, btn_y, btn_width, 50}, "Normal")) {
+        } else if (UILabelBtn((Rectangle){btn_x + btn_width + 10, btn_y, btn_width, 50}, "Normal")) {
                 game->snake.speed_mode = NORMAL;
                 game->state = PLAYING;
-        } else if (ui_label_button((Rectangle){btn_x + (btn_width * 2) + 20, btn_y, btn_width, 50}, "Fast")) {
+        } else if (UILabelBtn((Rectangle){btn_x + (btn_width * 2) + 20, btn_y, btn_width, 50}, "Fast")) {
                 game->snake.speed_mode = FAST;
                 game->state = PLAYING;
-        } else if (ui_label_button((Rectangle){btn_x + (btn_width * 3) + 30, btn_y, btn_width, 50}, "Blazingly fast")) {
+        } else if (UILabelBtn((Rectangle){btn_x + (btn_width * 3) + 30, btn_y, btn_width, 50}, "Blazingly fast")) {
                 game->snake.speed_mode = BLAZINGLY_FAST;
                 game->state = PLAYING;
         }
-}
-
-static bool ui_label_button(Rectangle bounds, const char* text) {
-        const Vector2 mouse_pos = GetMousePosition();
-        const bool mouse_over = CheckCollisionPointRec(mouse_pos, bounds);
-        const u8 font_size = 20;
-
-        u16 text_width = MeasureText(text, font_size);
-        float text_x = bounds.x + (bounds.width - text_width) / 2;
-        float text_y = bounds.y + (bounds.height - font_size) / 2;
-
-
-        if (mouse_over) {
-                DrawText(text, text_x, text_y, font_size, RED);
-        } else {
-                DrawText(text, text_x, text_y, font_size, BLACK);
-        }
-
-        return (mouse_over && IsMouseButtonDown(MOUSE_BUTTON_LEFT));
 }
 
 #endif

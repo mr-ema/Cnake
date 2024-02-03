@@ -9,6 +9,16 @@
 #include "food.h"
 #include "collision.h"
 
+typedef enum GameState {
+        TITLE_SCREEN,
+        GAME_OVER,
+        MENU,
+        PLAYING,
+        WIN,
+        RESTART,
+        EXIT_GAME
+} GameState;
+
 typedef struct {
         GameState state;
         u32 screen_width;
@@ -21,12 +31,12 @@ typedef struct {
         Food fruit;
 } Game;
 
-static Game init_game(void);
-static void init_resources(Game* game);
-static void restard_game(Game* game);
-static void deinit_game(Game* game);
+static Game gameInit(void);
+static void gameRestard(Game* game);
+static void gameDeinit(Game* game);
+static void gameResourcesInit(Game* game);
 
-static Game init_game(void) {
+static Game gameInit(void) {
         const u32 COLUMNS = (SCREEN_WIDTH - OFFSET_X) / TILE_SIZE;
         const u32 ROWS = (SCREEN_HEIGHT - OFFSET_Y) / TILE_SIZE;
 
@@ -53,8 +63,8 @@ static Game init_game(void) {
                         .color = HEAD_COLOR,
                 },
                 .speed_mode = NORMAL,
-                ._speed = (Vector2){ (float)grid.tile_size, 0 },
-                .size = (Vector2){ (float)grid.tile_size * TILE_SCALE_DELTA, (float)grid.tile_size * TILE_SCALE_DELTA },
+                ._speed = (Vector2){ (f32)grid.tile_size, 0 },
+                .size = (Vector2){ (f32)grid.tile_size * TILE_SCALE_DELTA, (f32)grid.tile_size * TILE_SCALE_DELTA },
                 .len = 1,
                 .allow_move = false,
         };
@@ -65,7 +75,7 @@ static Game init_game(void) {
         }
 
         Food fruit = {
-                .rec = (Rectangle){ -100.0f, 0.0f, (float)grid.tile_size * TILE_SCALE_DELTA, (float)grid.tile_size * TILE_SCALE_DELTA },
+                .rec = (Rectangle){ -100.0f, 0.0f, (f32)grid.tile_size * TILE_SCALE_DELTA, (f32)grid.tile_size * TILE_SCALE_DELTA },
                 .active = false,
                 .color = FRUIT_COLOR,
         };
@@ -77,21 +87,21 @@ static Game init_game(void) {
         return game;
 }
 
-static void init_resources(Game *game) {
+static void gameResourcesInit(Game *game) {
         Sound crunch = LoadSound("assets/crunch.wav");
 
         game->snake.crunch_sound = crunch;
 }
 
-static void deinit_game(Game* game) {
+static void gameDeinit(Game* game) {
         UnloadSound(game->snake.crunch_sound);
 }
 
-static void restard_game(Game* game) {
+static void gameRestard(Game* game) {
         game->snake.score = 0;
         game->snake.len = 1;
         game->snake.head.position = (Vector2){ game->grid.start_x + game->grid.tile_size, game->grid.start_y };
-        game->snake._speed = (Vector2){ (float)game->grid.tile_size, 0 };
+        game->snake._speed = (Vector2){ (f32)game->grid.tile_size, 0 };
         game->snake.allow_move = false;
 
         game->fruit.active = false;
