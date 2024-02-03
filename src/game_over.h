@@ -4,23 +4,19 @@
 #include "raylib.h"
 #include "config.h"
 #include "types.h"
+#include "game.h"
 
-static void handle_game_over(const u32 screen_width, const u32 screen_height, GameState* state);
-static void draw_game_over(const u32 screen_width, const u32 screen_height);
+static void gameOverUpdate(Game* game);
+static void gameOverRender(const u32 screen_width, const u32 screen_height);
 
-static void handle_game_over(const u32 screen_width, const u32 screen_height, GameState* state) {
+static void gameOverUpdate(Game* game) {
         if (IsKeyPressed(KEY_R)) {
-                *state = RESTART;
+                game->state = RESTART;
         }
-
-        BeginDrawing();
-        ClearBackground(SCREEN_BACKGROUND);
-                draw_game_over(screen_width, screen_height);
-        EndDrawing();
 }
 
-static void draw_game_over(const u32 screen_width, const u32 screen_height) {
-        const u8 font_size = 50; 
+static void gameOverRender(const u32 screen_width, const u32 screen_height) {
+        const u8 font_size = 50;
         const Color color = RAYWHITE;
 
         DrawText("GAME OVER",
@@ -34,7 +30,7 @@ static void draw_game_over(const u32 screen_width, const u32 screen_height) {
                 screen_width / 2 - MeasureText("PRESS [R] TO RESTART", font_size * 0.35) / 2,
                 screen_height / 2 + 10,
                 font_size * 0.35,
-                color 
+                color
         );
 }
 

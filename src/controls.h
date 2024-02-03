@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "raylib.h"
+#include "types.h"
 
 typedef enum {
         MOVE_UP,
@@ -14,10 +15,38 @@ typedef enum {
         TOTAL_ACTIONS
 } ControlActions;
 
-static int keybindings[TOTAL_ACTIONS];
+static int keybindings[TOTAL_ACTIONS] = {
+    DEFAULT_KEY_MOVE_UP,
+    DEFAULT_KEY_MOVE_DOWN,
+    DEFAULT_KEY_MOVE_LEFT,
+    DEFAULT_KEY_MOVE_RIGHT,
+    DEFAULT_KEY_PAUSE_GAME,
+    DEFAULT_KEY_GOBACK,
+};
 
-void set_keybinding(ControlActions action, int key);
-int get_keybinding(ControlActions action);
-void reset_keybindings_to_defaults(void);
+
+static void controlSet(ControlActions action, int key);
+static int controlGet(ControlActions action);
+static void controlReset(void);
+
+void controlSet(ControlActions action, int key) {
+        if (action >= 0 && action < TOTAL_ACTIONS) {
+                keybindings[action] = key;
+        }
+}
+
+static int controlGet(ControlActions action) {
+        if (action >= 0 && action < TOTAL_ACTIONS) {
+                return keybindings[action];
+        }
+
+        return -1;
+}
+
+static void controlReset(void) {
+        for (int i = 0; i < TOTAL_ACTIONS; i++) {
+                keybindings[i] = DEFAULT_KEY_MOVE_UP + i;
+        }
+}
 
 #endif

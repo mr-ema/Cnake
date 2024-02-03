@@ -15,7 +15,7 @@ pub fn build(b: *std.Build) !void {
     exe.linkLibrary(try raylib.addRaylib(b, target, optimize, .{}));
     exe.addIncludePath(.{ .path = "libs/raylib/src" });
     exe.addCSourceFiles(.{
-        .files = &.{ "src/main.c", "src/controls.c" },
+        .files = &.{"src/main.c"},
         .flags = &.{ "-std=gnu99", "-D_GNU_SOURCE" },
     });
 

@@ -14,27 +14,11 @@ typedef struct {
         Vector2 wall_max;
 } CollisionSystem;
 
-static void handle_collitions(Snake* snake, Food* fruit, const Grid* grid,  GameState* state);
-static bool check_snake_self_collision(const Snake* snake);
-static bool check_snake_wall_collision(const Snake* snake, const Grid* grid);
-static bool check_snake_food_collision(const Snake* snake, const Food* fruit);
+static bool checkSnakeSelfCollision(const Snake* snake);
+static bool checkSnakeWallCollision(const Snake* snake, const Grid* grid);
+static bool checkSnakeFoodCollision(const Snake* snake, const Food* fruit);
 
-static void handle_collitions(Snake* snake, Food* food, const Grid* grid, GameState* state) {
-        if (check_snake_self_collision(snake) ||
-            check_snake_wall_collision(snake, grid)
-        ) {
-                *state = GAME_OVER;
-        } else if (check_snake_food_collision(snake, food)) {
-                PlaySound(snake->crunch_sound);
-                snake->body[snake->len].position = snake->body[snake->len - 1].position;
-
-                snake->score += 1;
-                snake->len += 1;
-                food->active = false;
-        }
-}
-
-static bool check_snake_self_collision(const Snake *snake) {
+static bool checkSnakeSelfCollision(const Snake* snake) {
         for (int i = 0; i < snake->len; i++) {
                 if (snake->head.position.x == snake->body[i].position.x && snake->head.position.y == snake->body[i].position.y)
                         return true;
@@ -43,7 +27,7 @@ static bool check_snake_self_collision(const Snake *snake) {
         return false;
 }
 
-static bool check_snake_wall_collision(const Snake* snake, const Grid* grid) {
+static bool checkSnakeWallCollision(const Snake* snake, const Grid* grid) {
         Vector2 boundary_min = {
                 .x = grid->start_x,
                 .y = grid->start_y
@@ -66,7 +50,7 @@ static bool check_snake_wall_collision(const Snake* snake, const Grid* grid) {
         return false;
 }
 
-static bool check_snake_food_collision(const Snake *snake, const Food *fruit) {
+static bool checkSnakeFoodCollision(const Snake* snake, const Food* fruit) {
         if (CheckCollisionPointRec(snake->head.position, fruit->rec)) {
                 return true;
         }

@@ -3,21 +3,18 @@
 
 #include "raylib.h"
 #include "types.h"
+#include "game.h"
 
-static void handle_win_state(const u32 screen_width, const u32 screen_height, GameState* state);
-static void draw_win_text(const u32 screen_width, const u32 screen_height);
+static void winSceneUpdate(Game* game);
+static void winSceneRender(const u32 screen_width, const u32 screen_height);
 
-static void handle_win_state(const u32 screen_width, const u32 screen_height, GameState* state) {
+static void winSceneUpdate(Game* game) {
         if (IsKeyPressed(KEY_R)) {
-                *state = RESTART;
+                game->state = RESTART;
         }
-
-        BeginDrawing();
-                draw_win_text(screen_width, screen_height);
-        EndDrawing();
 }
 
-static void draw_win_text(const u32 screen_width, const u32 screen_height) {
+static void winSceneRender(const u32 screen_width, const u32 screen_height) {
         const u8 font_size = 40;
         const Color color = RAYWHITE;
 
