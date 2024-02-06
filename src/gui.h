@@ -12,9 +12,9 @@ typedef enum {
 } ButtonState;
 */
 
-static bool UILabelBtn(Rectangle box, const char* text);
+static bool CUILabelBtn(Rectangle bounds, const char* text, Color color, Color hover_color);
 
-static bool UILabelBtn(Rectangle bounds, const char* text) {
+static bool CUILabelBtn(Rectangle bounds, const char* text, Color color, Color hover_color) {
         const Vector2 mouse_pos = GetMousePosition();
         const bool mouse_over = CheckCollisionPointRec(mouse_pos, bounds);
         const u8 font_size = 20;
@@ -25,12 +25,12 @@ static bool UILabelBtn(Rectangle bounds, const char* text) {
 
 
         if (mouse_over) {
-                DrawText(text, text_x, text_y, font_size, RED);
+                DrawText(text, text_x, text_y, font_size, hover_color);
         } else {
-                DrawText(text, text_x, text_y, font_size, BLACK);
+                DrawText(text, text_x, text_y, font_size, color);
         }
 
-        return (mouse_over && IsMouseButtonDown(MOUSE_BUTTON_LEFT));
+        return (mouse_over && IsMouseButtonPressed(MOUSE_BUTTON_LEFT));
 }
 
 #endif
