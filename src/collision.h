@@ -51,7 +51,14 @@ static bool checkSnakeWallCollision(const Snake* snake, const Grid* grid) {
 }
 
 static bool checkSnakeFoodCollision(const Snake* snake, const Food* fruit) {
-        if (CheckCollisionPointRec(snake->head.position, fruit->rec)) {
+        const Rectangle snake_rec = {
+                .x = snake->head.position.x,
+                .y = snake->head.position.y,
+                .width = snake->size.x,
+                .height = snake->size.y,
+        };
+
+        if (CheckCollisionRecs(snake_rec, fruit->rec)) {
                 return true;
         }
 
