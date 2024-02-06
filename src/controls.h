@@ -5,7 +5,7 @@
 #include "raylib.h"
 #include "types.h"
 
-typedef enum {
+typedef enum ControlAction {
         MOVE_UP,
         MOVE_DOWN,
         MOVE_LEFT,
@@ -13,7 +13,7 @@ typedef enum {
         PAUSE_GAME,
         GOBACK,
         TOTAL_ACTIONS
-} ControlActions;
+} ControlAction;
 
 static int keybindings[TOTAL_ACTIONS] = {
     DEFAULT_KEY_MOVE_UP,
@@ -25,17 +25,17 @@ static int keybindings[TOTAL_ACTIONS] = {
 };
 
 
-static void controlSet(ControlActions action, int key);
-static int controlGet(ControlActions action);
+static void controlSet(ControlAction action, int key);
+static int controlGet(ControlAction action);
 static void controlReset(void);
 
-void controlSet(ControlActions action, int key) {
+void controlSet(ControlAction action, int key) {
         if (action >= 0 && action < TOTAL_ACTIONS) {
                 keybindings[action] = key;
         }
 }
 
-static int controlGet(ControlActions action) {
+static int controlGet(ControlAction action) {
         if (action >= 0 && action < TOTAL_ACTIONS) {
                 return keybindings[action];
         }
