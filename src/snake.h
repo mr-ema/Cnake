@@ -1,12 +1,12 @@
 #ifndef CNAKE_SNAKE_H
 #define CNAKE_SNAKE_H
 
-#include <stddef.h>
 #include "config.h"
 #include "controls.h"
 #include "raylib.h"
 #include "types.h"
 #include "utils.h"
+#include "raymath.h"
 
 #define CNAKE_LEN (usize)(((SCREEN_WIDTH - OFFSET_X) / TILE_SIZE) * ((SCREEN_HEIGHT - OFFSET_Y) / TILE_SIZE) / TILE_SCALE_DELTA)
 
@@ -64,13 +64,15 @@ static void snakeUpdate(Snake* snake) {
 }
 
 static void snakeDraw(const Snake* snake) {
+        // Draw head
         DrawRectangleV(snake->head.position, snake->size, snake->head.color);
-        for (int i = 1; i < snake->len; i++) {
+
+        for (usize i = 1; i < snake->len; i++) {
                 DrawRectangleV(snake->body[i].position, snake->size, snake->body[i].color);
         }
 }
 
-static void snakeEat(Snake *snake) {
+static void snakeEat(Snake* snake) {
         PlaySound(snake->crunch_sound);
         snake->body[snake->len].position = snake->body[snake->len - 1].position;
 
